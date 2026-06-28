@@ -1,0 +1,11 @@
+=LAMBDA(
+  LET(
+    _comment,
+    N(
+      "function name: val_POUNDS_PER_KILOGRAM"
+    ),
+    _result,
+    2.20462,
+    _result
+  )
+)

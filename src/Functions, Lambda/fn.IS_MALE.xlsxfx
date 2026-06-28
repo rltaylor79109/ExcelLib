@@ -1,0 +1,28 @@
+=LAMBDA(
+  pSexStr,
+  LET(
+    _comment,
+    N(
+      "function name: fn.IS_MALE"
+    ),
+    _result,
+    SWITCH(
+      UPPER(
+        TRIM(
+          pSexStr
+        )
+      ),
+      "F",
+      FALSE,
+      "FEMALE",
+      FALSE,
+      "M",
+      TRUE,
+      "MALE",
+      TRUE,
+      NA(
+      )
+    ),
+    _result
+  )
+)

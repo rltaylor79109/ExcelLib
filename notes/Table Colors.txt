@@ -1,0 +1,3 @@
+Table Colors
+Table Header Fill  RBG(21, 96, 130)
+Table Cell Fill RGB(192, 230, 245)

@@ -1,0 +1,28 @@
+=LAMBDA(
+  pAnyCellInSheet,
+  LET(
+    _comment,
+    N(
+      "function name: GetWorksheetName"
+    ),
+    _pathPlusSheetName,
+    CELL(
+      "filename",
+      pAnyCellInSheet
+    ),
+    _startPos,
+    FIND(
+      "]",
+      _pathPlusSheetName
+    ) + 1,
+    _maxSheetNameLen,
+    31,
+    _result,
+    MID(
+      _pathPlusSheetName,
+      _startPos,
+      _maxSheetNameLen
+    ),
+    _result
+  )
+)

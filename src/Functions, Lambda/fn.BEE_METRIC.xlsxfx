@@ -1,0 +1,19 @@
+=LAMBDA(
+  pWtKg,
+  pHtCm,
+  pAgeYears,
+  pIsMale,
+  LET(
+    _comment,
+    N(
+      "function name: fn.BEE_METRIC"
+    ),
+    _result,
+    10 * pWtKg + 6.25 * pHtCm - 5 * pAgeYears + IF(
+      pIsMale,
+      5,
+      - 161
+    ),
+    _result
+  )
+)

@@ -1,0 +1,68 @@
+=LAMBDA(
+  pData,
+  pPeriod,
+  pNA_IfPeriodLessThanRangeLen,
+  LET(
+    _comment,
+    N(
+      "function name: MOVINGAVERAGE"
+    ),
+    _dataNAsRemoved,
+    FILTER(
+      pData,
+      NOT(
+        ISNA(
+          pData
+        )
+      )
+    ),
+    _dataFullyCleaned,
+    FILTER(
+      _dataNAsRemoved,
+      ISNUMBER(
+        _dataNAsRemoved
+      )
+    ),
+    _validCount,
+    COUNT(
+      _dataFullyCleaned
+    ),
+    _targetCount,
+    IF(
+      _validCount < pPeriod,
+      _validCount,
+      pPeriod
+    ),
+    _dataToAverage,
+    TAKE(
+      _dataFullyCleaned,
+      - _targetCount
+    ),
+    _avgValue,
+    AVERAGE(
+      _dataToAverage
+    ),
+    _NA_IfPeriodLessThanRangeLen,
+    IF(
+      ISOMITTED(
+        pNA_IfPeriodLessThanRangeLen
+      ),
+      FALSE,
+      pNA_IfPeriodLessThanRangeLen
+    ),
+    result,
+    IF(
+      OR(
+        _targetCount = 0,
+        AND(
+          _NA_IfPeriodLessThanRangeLen,
+          _validCount < pPeriod
+        )
+      ),
+      NA(
+      ),
+      _avgValue
+    ),
+    result
+  )
+)

@@ -1,0 +1,28 @@
+=LAMBDA(
+  pStartRange,
+  pStepCount,
+  pIntervalLen,
+  LET(
+    _comment,
+    N(
+      "function name: SUM_INTERVALS"
+    ),
+    _seq,
+    SEQUENCE(
+      pStepCount,
+      1,
+      0
+    ) * pIntervalLen + 1,
+    _toSum,
+    INDEX(
+      pStartRange,
+      _seq,
+      1
+    ),
+    _result,
+    SUM(
+      _toSum
+    ),
+    _result
+  )
+)

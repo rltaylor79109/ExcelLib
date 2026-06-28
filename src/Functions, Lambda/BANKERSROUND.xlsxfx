@@ -1,0 +1,51 @@
+=LAMBDA(
+  pValue,
+  [pPrecision],
+  LET(
+    _comment,
+    N(
+      "function name: BANKERSROUND"
+    ),
+    _defaultPrecision,
+    2,
+    _precision,
+    IF(
+      ISOMITTED(
+        pPrecision
+      ),
+      _defaultPrecision,
+      pPrecision
+    ),
+    _factor,
+    10 ^ _precision,
+    _scaledValue,
+    pValue * _factor,
+    float,
+    _scaledValue - TRUNC(
+      _scaledValue
+    ),
+    IF(
+      ABS(
+        float
+      ) = 0.5,
+      IF(
+        ISEVEN(
+          TRUNC(
+            _scaledValue
+          )
+        ),
+        TRUNC(
+          _scaledValue
+        ),
+        ROUND(
+          _scaledValue,
+          0
+        )
+      ) / _factor,
+      ROUND(
+        _scaledValue,
+        0
+      ) / _factor
+    )
+  )
+)

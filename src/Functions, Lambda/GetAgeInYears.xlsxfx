@@ -1,0 +1,25 @@
+=LAMBDA(
+  pDateOfBirth,
+  LET(
+    _comment,
+    N(
+      "function name: GetAgeInYears"
+    ),
+    _ageYears,
+    DATEDIF(
+      pDateOfBirth,
+      TODAY(
+      ),
+      "Y"
+    ),
+    _result,
+    IF(
+      ISNUMBER(
+        pDateOfBirth
+      ),
+      _ageYears,
+      "Enter Date of Birth Above."
+    ),
+    _result
+  )
+)
