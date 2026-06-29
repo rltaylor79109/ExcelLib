@@ -1,0 +1,18 @@
+=LAMBDA(
+  LET(
+    _comment,
+    N(
+      "function name: fn_GET_.SEX_STRINGS_LIST"
+    ),
+    _result,
+    TRANSPOSE(
+      TOCOL(
+        {
+          "Male",
+          "Female"
+        }
+      )
+    ),
+    _result
+  )
+)

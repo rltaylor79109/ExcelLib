@@ -1,10 +1,12 @@
 =LAMBDA(
   pWtLbs,
   pHtInches,
+  pAgeYears,
+  pIsMale,
   LET(
     _comment,
     N(
-      "function name: fn.BMI_USC"
+      "function name: fn_BEE_USC"
     ),
     _wtKg,
     pWtLbs / val_POUNDS_PER_KILOGRAM(
@@ -12,10 +14,15 @@
     _htM,
     pHtInches / val_INCHES_PER_METER(
     ),
+    _htCm,
+    _htM * val_CM_PER_METER(
+    ),
     _result,
-    fn.BMI_METRIC(
+    fn_BEE_METRIC(
       _wtKg,
-      _htM
+      _htCm,
+      pAgeYears,
+      pIsMale
     ),
     _result
   )

@@ -4,7 +4,7 @@
   LET(
     _comment,
     N(
-      "function name: fn.BMI_METRIC"
+      "function name: fn_BMI_METRIC"
     ),
     _result,
     pWtKg /(

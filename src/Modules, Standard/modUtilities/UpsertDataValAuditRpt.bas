@@ -8,7 +8,7 @@
 '     the user when complete. It is an optional parameter with a default value
 '     of False.
 ' Date Created: 2026-04-06
-' Date Last Modified: 2026-06-24
+' Date Last Modified: 2026-06-29
 '------------------------------------------------------------------------------'
 Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
   On Error GoTo Err_Proc
@@ -30,7 +30,10 @@ Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
   Const REPORT_WORKSHEET_TITLE = "Data Validation Audit Report"
   Const TABLE_FIRST_ROW As Long = 3
   Const TABLE_NAME As String = "tbl_Data_Validation_Audit_Rpt"
-
+  
+  ' Valid XlDVType enumeration values ranges from 0 to 7
+  Const XLDVTYPE_UNDEFINED As Long = -1
+  
   Dim creatingNewWs As Boolean
   Dim errorOccurred As Boolean
   Dim ps As ProtectionState
@@ -41,9 +44,10 @@ Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
   Dim tblRange As Range
   Dim updateButton As Button
   Dim validationRange As Range
+  Dim vType As XlDVType
   Dim ws As Worksheet
   Dim wb As Workbook
-
+  
   errorOccurred = False
   
   ' Optimization: Turn off UI updates
@@ -132,15 +136,14 @@ Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
       
       If Not validationRange Is Nothing Then
         For Each targetCell In validationRange.Cells
-          Dim vType As Long
-          vType = -1
+          vType = XLDVTYPE_UNDEFINED
           On Error Resume Next
           vType = targetCell.Validation.Type
           err.Clear
           On Error GoTo Err_Proc
           
-          ' Type 3 is xlValidateList
-          If vType = 3 Then
+          'xlValidateList = 3, xlValidateCustom = 7;
+          If vType = xlValidateList Or vType = xlValidateCustom Then
             rptWs.Cells(rowCount, 1).Value = "'" & targetCell.Validation.Formula1
             rptWs.Cells(rowCount, 2).Value = "'" & ws.Name
             rptWs.Cells(rowCount, 3).Value = "'" & targetCell.Address

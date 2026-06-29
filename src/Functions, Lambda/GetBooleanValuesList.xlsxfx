@@ -1,0 +1,18 @@
+=LAMBDA(
+  LET(
+    _comment,
+    N(
+      "function name: GetBooleanValuesList"
+    ),
+    _result,
+    TRANSPOSE(
+      TOCOL(
+        {
+          True,
+          False
+        }
+      )
+    ),
+    _result
+  )
+)
