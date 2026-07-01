@@ -1,10 +1,10 @@
 Option Explicit
 
 '------------------------------------------------------------------------------'
-' Class Module Name: ProtectionState
+' Class Module Name: clsProtectionState
 ' Summary: Contains a worksheet's protection information.
 ' Date Created: 2026-05-23
-' Date Last Modified: 2026-05-25
+' Date Last Modified: 2026-07-01
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -16,7 +16,7 @@ Option Explicit
 '------------------------------------------------------------------------------'
 
 ' The name of this class module.
-Private Const MODULE_NAME As String = "ProtectionState"
+Private Const MODULE_NAME As String = "clsProtectionState"
 
 '------------------------------------------------------------------------------'
 ' Variable Fields
@@ -43,11 +43,11 @@ Private m_AllowUsingPivotTables As Boolean
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
-' Summary: Instantiates and initializes an instance of the ProtectionState
+' Summary: Instantiates and initializes an instance of the clsProtectionState
 '   class with protection state of the specified Worksheet.
 ' Parameter(s)
 '   ws - The Worksheet.
-' Returns: An instance of the ProtectionState class initalized with the
+' Returns: An instance of the clsProtectionState class initalized with the
 '   protection state of the specified Worksheet.
 ' Date Created: 2026-05-23
 ' Date Last Modified: 2026-05-25

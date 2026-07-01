@@ -1,11 +1,11 @@
 Option Explicit
 
 '------------------------------------------------------------------------------'
-' Class Module Name: ProtectionStateStatic
+' Class Module Name: clsDVFormulaRefInfoStatic
 ' Summary: It contains members that are intended to be used as pseudo-static
-'   members of the clsProtectionState class.
-' Date Created: 2026-05-23
-' Date Last Modified: 2026-05-25
+'   members of the clsDVFormulaRefInfoStatic class.
+' Date Created: 2026-07-01
+' Date Last Modified: 2026-07-01
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -17,7 +17,7 @@ Option Explicit
 '------------------------------------------------------------------------------'
 
 ' The name of this class module.
-Private Const MODULE_NAME As String = "ProtectionStateStatic"
+Private Const MODULE_NAME As String = "clsDVFormulaRefInfoStatic"
 
 '------------------------------------------------------------------------------'
 ' Methods
@@ -28,24 +28,36 @@ Private Const MODULE_NAME As String = "ProtectionStateStatic"
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
-' Summary: Instantiates and initializes an instance of the ProtectionState
-'   class with the protection state of the specified Worksheet. It is a
-'   factory method.
+' Summary: Instantiates and initializes an instance of the
+'   clsDVFormulaRefInfo class with the specified values. It is a factory method.
 ' Parameter(s)
 '   ws - The Worksheet.
-' Return(s): An instance of the ProtectionState class initalized with the
-'   protection state of the specified Worksheet.
-' Date Created: 2026-05-25
-' Date Last Modified: 2026-05-25
+' Return(s): An instance of the clsDVFormulaRefInfoStatic class initalized
+'   with the specified property values.
+' Date Created: 2026-07-01
+' Date Last Modified: 2026-07-01
 '------------------------------------------------------------------------------'
-Friend Function Create(ws As Worksheet) As ProtectionState
+Friend Function Create( _
+  ByVal pFormula1 As String, _
+  ByVal pFormula2 As String, _
+  Optional ByVal pRefCount As Long = 0, _
+  Optional ByRef pRefCountExceedsLimit As Boolean = False, _
+  Optional ByRef pRefList As String = "" _
+  ) As clsDVFormulaRefInfoStatic
+  
   On Error GoTo Err_Proc
   Const METHOD_NAME As String = "Create"
   
-  Dim ps As ProtectionState
-  Set ps = New ProtectionState
-  ps.Init (ws)
-  Set Create = ps
+  Dim instance As clsDVFormulaRefInfo
+  Set instance = New clsDVFormulaRefInfo
+  instance.Init _
+    formula1:=pFormula1, _
+    formula2:=pFormula2, _
+    refCount:=pRefCount, _
+    refCountExceedsLimit:=pRefCountExceedsLimit, _
+    refList:=pRefList
+    
+  Set Create = instance
 
 Exit_Proc:
   Exit Function
@@ -53,3 +65,4 @@ Err_Proc:
   ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Function
+
