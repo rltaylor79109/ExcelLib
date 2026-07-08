@@ -5,7 +5,7 @@ Option Explicit
 ' Summary: It contains members that are intended to be used as pseudo-static
 '   members of the clsDVFormulaRefInfoStatic class.
 ' Date Created: 2026-07-01
-' Date Last Modified: 2026-07-01
+' Date Last Modified: 2026-07-08
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -20,6 +20,10 @@ Option Explicit
 Private Const MODULE_NAME As String = "clsDVFormulaRefInfoStatic"
 
 '------------------------------------------------------------------------------'
+' Properties
+'------------------------------------------------------------------------------'
+
+'------------------------------------------------------------------------------'
 ' Methods
 '------------------------------------------------------------------------------'
 
@@ -27,42 +31,82 @@ Private Const MODULE_NAME As String = "clsDVFormulaRefInfoStatic"
 ' Friend Methods
 '------------------------------------------------------------------------------'
 
+''------------------------------------------------------------------------------'
+'' Summary: Instantiates and initializes an instance of the
+''   clsDVFormulaRefInfo class initialized with the specified property values.
+'' Parameter(s)
+''   pFormula1 - Represents the cell's Validation Formula1 value.
+''   pFormula2 - Represents the cell's Validation Formula1 value. A value of ""
+''     indicates its value is undefined. It is only defined when the validation
+''     Type property is set to xlValidateList or xlValidateCustom and the
+''     validation Operator is set either xlBetween or xlNotBetween.
+''   pRefDict - Represents the list of cells that have use this validation
+''     formula. It contains a dictionary of collections of cell addresses
+''     keyed by their Worksheet names. It is an optional parameter with a
+''     default value of nothing.
+'' Return(s): An instance of the clsDVFormulaRefInfoStatic class initalized
+''   with the specified property values.
+'' Date Created: 2026-07-02
+'' Date Last Modified: 2026-07-07
+''------------------------------------------------------------------------------'
+'Friend Function Create( _
+'  ByVal pF1 As String, _
+'  ByVal pF2 As String, _
+'  Optional ByRef pRefDict As Dictionary = Nothing _
+'  ) As clsDVFormulaRefInfo
+'
+'  On Error GoTo Err_Proc
+'  Const METHOD_NAME As String = "Create"
+'
+'  Dim instance As clsDVFormulaRefInfo
+'  Set instance = New clsDVFormulaRefInfo
+'  instance.Init _
+'    pF1:=pF1, _
+'    pF2:=pF2, _
+'    pRefDict:=pRefDict
+'
+'  Set Create = instance
+'
+'Exit_Proc:
+'  Exit Function
+'Err_Proc:
+'  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
+'  Resume Exit_Proc
+'End Function
+
 '------------------------------------------------------------------------------'
 ' Summary: Instantiates and initializes an instance of the
-'   clsDVFormulaRefInfo class with the specified values. It is a factory method.
+'   clsDVFormulaRefInfo class with the data validation information from the
+'   specified cell.
 ' Parameter(s)
-'   ws - The Worksheet.
+'   pCell - The cell whose validation information is used.
+'   pRefDict - Represents the list of cells that have use this validation
+'     formula. It contains a dictionary of collections of cell addresses
+'     keyed by their Worksheet names.It is an optional parameter with a
+'     default value of nothing.
 ' Return(s): An instance of the clsDVFormulaRefInfoStatic class initalized
 '   with the specified property values.
-' Date Created: 2026-07-01
-' Date Last Modified: 2026-07-01
+' Date Created: 2026-07-07
+' Date Last Modified: 2026-07-08
 '------------------------------------------------------------------------------'
-Friend Function Create( _
-  ByVal pFormula1 As String, _
-  ByVal pFormula2 As String, _
-  Optional ByVal pRefCount As Long = 0, _
-  Optional ByRef pRefCountExceedsLimit As Boolean = False, _
-  Optional ByRef pRefList As String = "" _
-  ) As clsDVFormulaRefInfoStatic
+Friend Function CreateFromCell( _
+  ByRef pCell As Range, _
+  Optional ByRef pRefDict As Dictionary = Nothing _
+  ) As clsDVFormulaRefInfo
   
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "Create"
+  Const METHOD_NAME As String = "CreateFromCell"
   
   Dim instance As clsDVFormulaRefInfo
   Set instance = New clsDVFormulaRefInfo
-  instance.Init _
-    formula1:=pFormula1, _
-    formula2:=pFormula2, _
-    refCount:=pRefCount, _
-    refCountExceedsLimit:=pRefCountExceedsLimit, _
-    refList:=pRefList
-    
-  Set Create = instance
-
+  instance.InitWithCell _
+    pCell:=pCell, _
+    pRefDict:=pRefDict
+  Set CreateFromCell = instance
+  
 Exit_Proc:
   Exit Function
 Err_Proc:
   ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Function
-
