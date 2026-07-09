@@ -32,7 +32,7 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
   Const RPT_WS_CODENAME As String = _
     "SheetDvByForumlaRpt"
   Const RPT_WS_NAME = "DV by F Rpt"
-  Const RPT_WS_TITLE = "Data Validation, Groupeed by Formula, Report"
+  Const RPT_WS_TITLE = "Formulas Used for Data Validation Report"
   Const TBL_FIRST_ROW As Long = 3
   Const TBL_NAME As String = "tbl_Dv_F_Rpt"
 
@@ -136,7 +136,7 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
   ' Loop through all sheets to find Validation
   For Each ws In ThisWorkbook.Worksheets
     If ws.codeName = RPT_WS_CODENAME Then GoTo NEXT_WS_ITER
-    
+
     Set valRng = Nothing
     ' An attempt reference to Range.SpecialCells(xlCellTypeAllValidation)
     ' will raise an error if no cells in the range have validation.
@@ -160,6 +160,7 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
         formulaRefInfoDict.Add key:=formulaKey, item:=formulaRefInfo
       End If
       Set formulaRefInfo = formulaRefInfoDict(formulaKey)
+      
       formulaRefInfo.AddReference _
         wsName:=ws.Name, _
         cellAddress:=targetCell.Address
@@ -174,7 +175,7 @@ NEXT_WS_ITER:
     rptWs.Cells(rowCount, COL_IDX_F2).value = _
       "'" & formulaRefInfo.formula2 ' col 2
     rptWs.Cells(rowCount, COL_IDX_REF_COUNT).value = _
-      "'" & formulaRefInfo.GetRefCount ' col 3
+      formulaRefInfo.GetRefCount ' col 3
     rptWs.Cells(rowCount, COL_IDX_REFS).value = _
       "'" & formulaRefInfo.GetRefString( _
         refLimitExceeded:=refCountLimitExceeded, _
@@ -245,7 +246,7 @@ Exit_Proc:
   ElseIf Not silent Then
     MsgBox _
       "Report complete. " & _
-        "Found " & (rowCount - 2) & " cells with data validation.", _
+        "Found " & (rowCount - 4) & " unique formulas used for data validation.", _
       vbInformation, _
       MSGBOX_TITLE
   End If

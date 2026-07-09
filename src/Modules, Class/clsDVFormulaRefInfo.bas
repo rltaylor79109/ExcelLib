@@ -220,7 +220,7 @@ End Property
 '    validation formula.
 '   cellAddress- The address of the cell that uses this validation formula.
 ' Date Created: 2026-07-02
-' Date Last Modified: 2026-07-07
+' Date Last Modified: 2026-07-08
 '------------------------------------------------------------------------------'
 Friend Sub AddReference(wsName As String, cellAddress As String)
   On Error GoTo Err_Proc
@@ -231,7 +231,6 @@ Friend Sub AddReference(wsName As String, cellAddress As String)
   If Not m_RefDict.Exists(wsName) Then
     Set cellAddressCollection = New Collection
     cellAddressCollection.Add item:=cellAddress
-    Set m_RefDict = New Dictionary
     m_RefDict.Add key:=wsName, item:=cellAddressCollection
   Else
     Set cellAddressCollection = m_RefDict(wsName)
@@ -293,7 +292,7 @@ End Function
 '   represented by this instance of the clsDVFormulaRefInfo class. It is
 '   subject to the limits explained above.
 ' Date Created: 2026-07-02
-' Date Last Modified: 2026-07-07
+' Date Last Modified: 2026-07-08
 '------------------------------------------------------------------------------'
 Friend Function GetRefString( _
   refLimitExceeded As Boolean, _
@@ -340,12 +339,12 @@ Friend Function GetRefString( _
       Else ' We have exceeded the reference count limit.
         refLimitExceeded = True
         refString = refString & ",..."
-        GoTo Next_Worksheet_Key_Iter:
+        GoTo After_Ref_Limit_Exceeded
       End If
     Next cellAddress
-    
-Next_Worksheet_Key_Iter:
   Next worksheetKey
+  
+After_Ref_Limit_Exceeded:
   GetRefString = refString
   
 Exit_Proc:
