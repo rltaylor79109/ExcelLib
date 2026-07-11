@@ -2,7 +2,7 @@
   LET(
     _comment,
     N(
-      "function name: GetBooleanValuesList"
+      "function name:  fn_BOOLEAN_VALUES_LIST"
     ),
     _result,
     TRANSPOSE(
