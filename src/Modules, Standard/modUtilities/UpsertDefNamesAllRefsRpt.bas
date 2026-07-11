@@ -6,13 +6,13 @@
 '   3) Data validaton sources, and
 '   4) VBA code.
 ' Parameter(s)
-'   fast - If True, the source worksheets are not updated; otherwise they
+'   fastMode - If True, the source worksheets are not updated; otherwise they
 '     are updated with can be very slow. It is an optional parameter with
 '     a default value of False.
 ' Date Created: 2026-06-14
-' Date Last Modified: 2026-06-24
+' Date Last Modified: 2026-07-10
 '------------------------------------------------------------------------------'
-Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
+Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   On Error GoTo Err_Proc
   Const METHOD_NAME As String = "UpsertDefNamesAllRefsRpt"
   
@@ -55,13 +55,16 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
   Const WS_REF_RPT_TABLE_NAME As String = "tbl_Def_Names_Ws_Refs_Rpt"
   Const TABLE_HEADER_BACKGROUND_COLORINDEX As Long = 8544277
   Const TABLE_HEADER_FOREGROUND_COLORINDEX As Long = 16777215
-  Const VAL_RPT_HEADER_CELL_ADDRESS = "Cell_Address"
-  Const VAL_RPT_HEADER_FORMULA_SOURCE = "Formula_Source"
-  Const VAL_RPT_HEADER_SHEET_NAME = "Sheet_Name"
-  Const VAL_RPT_TABLE_NAME As String = "tbl_Data_Validation_Audit_Rpt"
+  Const VAL_RPT_HEADER_F1 = "F1"
+  Const VAL_RPT_HEADER_F2 = "F2"
+  Const VAL_RPT_HEADER_REF_COUNT = "Ref_Count"
+  Const VAL_RPT_HEADER_REFERENCES = "References"
+  Const VAL_RPT_TABLE_NAME As String = "tbl_Dv_F_Rpt"
   
   Dim creatingNewDestWs As Boolean
   Dim defName As String
+  Dim defNameDestNdx As Long
+  Dim defNameSrcNdx As Long
   Dim destRow As Long
   Dim destTbl As ListObject
   Dim destTblRng As Range
@@ -72,16 +75,18 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
   Dim rngCollection As Collection
   Dim errorOccurred As Boolean
   Dim formulaCell As Range
-  Dim i As Long
-  Dim j As Long
+  Dim isInF1 As Boolean
+  Dim isInF2 As Boolean
   Dim namesCount As Long
-  Dim ps As ProtectionState
+  Dim ps As clsProtectionState
   Dim refCount As Long
   Dim refCountLimitReached As Boolean
   Dim refCountStr As String
   Dim refCountAllNotZero As Boolean
   Dim refList As String
+  Dim refListCollection As Collection
   Dim rng As Range
+  Dim valTblRowCount As Long
   Dim wsRefRptDefNamesTbl As ListObject
   Dim wsRefRptMustBeUpdated As Boolean
   Dim wsRefRptNamesColRng As Range
@@ -90,9 +95,10 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
   Dim wsRefRptRefersToColRng As Range
   Dim wsRefRptVisibleColRng As Range
   Dim valRptTbl As ListObject
-  Dim valRptColCellAddressRng As Range
-  Dim valRptColFormulaSourceRng As Range
-  Dim valRptColSheetNameRng As Range
+  Dim valRptColF1Rng As Range
+  Dim valRptColF2Rng As Range
+  Dim valRptColRefCountRng As Range
+  Dim valRptColReferencesRng As Range
   Dim vbComp As VBComponent
 
   errorOccurred = False
@@ -125,11 +131,11 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
     GoTo Exit_Proc
   End If
         
-  If Not fast Then
+  If Not fastMode Then
     ' This takes a long time to run.
-    UpsertDefNamesWsRefRpt fast:=False, silent:=True
+    UpsertDefNamesWsRefRpt fastMode:=False, silent:=True
   End If
-  UpsertDataValAuditRpt silent:=True
+  UpsertDvByFormulaRpt silent:=True
   
   ' Optimization: Turn off UI updates
   Application.ScreenUpdating = False
@@ -140,20 +146,20 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
   creatingNewDestWs = (destWs Is Nothing)
   
   If creatingNewDestWs Then
-    Set destWs = ThisWorkbook.Worksheets.Add(After:=Sheets(Sheets.Count - 1))
+    Set destWs = ThisWorkbook.Worksheets.Add(After:=Sheets(Sheets.count - 1))
     ThisWorkbook.VBProject.VBComponents(destWs.codeName).Name = _
       DEST_WS_CODENAME
       
     With destWs
       .Name = DEST_WS_NAME
       
-      With .Cells.Font
+      With .cells.Font
         .Name = "Aptos Narrow"
         .Size = 10
       End With
       
-      With .Cells(1, 1)
-        .Value = DEST_WS_TITLE
+      With .cells(1, 1)
+        .value = DEST_WS_TITLE
         With .Font
           .Name = "Aptos Display"
           .Size = 12
@@ -164,22 +170,22 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
       ' Create the Headers that lie outside the formal table.
       Set rngCollection = New Collection
       
-      .Range("B3").Value = "Referencer"
+      .Range("B3").value = "Referer"
       rngCollection.Add .Range("B3:J3")
       
-      .Range("B4").Value = "Worksheets"
+      .Range("B4").value = "Worksheets"
       rngCollection.Add .Range("B4:C4")
       
-      .Range("D4").Value = "Formulas (Including Lambda)"
+      .Range("D4").value = "Formulas (Including Lambda)"
       rngCollection.Add .Range("D4:E4")
       
-      .Range("F4").Value = "Data Validation Sources"
+      .Range("F4").value = "Data Validation Sources"
       rngCollection.Add .Range("F4:G4")
       
-      .Range("H4").Value = "VBA Modules"
+      .Range("H4").value = "VBA Modules"
       rngCollection.Add .Range("H4:I4")
       
-      .Range("J4").Value = "All"
+      .Range("J4").value = "All"
       rngCollection.Add .Range("J4")
       
       For Each rng In rngCollection
@@ -219,7 +225,7 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
     End With
     
   Else
-    Set ps = ProtectionStateStatic.Create(destWs)
+    Set ps = clsProtectionStateStatic.Create(destWs)
     destWs.Unprotect
     
     ' Clear existing ListObject if it exists to avoid conflicts
@@ -230,29 +236,29 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
   End If
   
   With destWs
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_NAME).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_NAME).value = _
       DEST_COL_NAME_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_RWs_COUNT).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_RWs_COUNT).value = _
       DEST_COL_RWs_COUNT_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_RWs_NAMES).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_RWs_NAMES).value = _
       DEST_COL_RWs_NAMES_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_RF_COUNT).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_RF_COUNT).value = _
       DEST_COL_RF_COUNT_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_RF_NAMES).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_RF_NAMES).value = _
       DEST_COL_RF_NAMES_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_RDV_COUNT).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_RDV_COUNT).value = _
       DEST_COL_RDV_COUNT_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_RDV_NAMES).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_RDV_NAMES).value = _
       DEST_COL_RDV_NAMES_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_RVBA_COUNT).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_RVBA_COUNT).value = _
       DEST_COL_RVBA_COUNT_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_RVBA_NAMES).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_RVBA_NAMES).value = _
       DEST_COL_RVBA_NAMES_HEADER
-    .Cells(DEST_TABLE_HEADER_ROW, DEST_COL_ANY_REFS).Value = _
+    .cells(DEST_TABLE_HEADER_ROW, DEST_COL_ANY_REFS).value = _
       DEST_COL_ANY_REFS_HEADER
     .Range( _
-      .Cells(DEST_TABLE_HEADER_ROW, 1), _
-      .Cells(DEST_TABLE_HEADER_ROW, DEST_TABLE_COL_COUNT) _
+      .cells(DEST_TABLE_HEADER_ROW, 1), _
+      .cells(DEST_TABLE_HEADER_ROW, DEST_TABLE_COL_COUNT) _
       ).Font.Bold = True
   End With
   
@@ -269,47 +275,49 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
     wsRefRptDefNamesTbl.ListColumns(WS_REF_RPT_COL_HEADER_VISIBLE).DataBodyRange
     
   Set valRptTbl = Range(VAL_RPT_TABLE_NAME).ListObject
-  Set valRptColCellAddressRng = _
-    valRptTbl.ListColumns(VAL_RPT_HEADER_CELL_ADDRESS).DataBodyRange
-  Set valRptColFormulaSourceRng = _
-    valRptTbl.ListColumns(VAL_RPT_HEADER_FORMULA_SOURCE).DataBodyRange
-  Set valRptColSheetNameRng = _
-    valRptTbl.ListColumns(VAL_RPT_HEADER_SHEET_NAME).DataBodyRange
+  Set valRptColF1Rng = _
+    valRptTbl.ListColumns(VAL_RPT_HEADER_F1).DataBodyRange
+  Set valRptColF2Rng = _
+    valRptTbl.ListColumns(VAL_RPT_HEADER_F2).DataBodyRange
+  Set valRptColRefCountRng = _
+    valRptTbl.ListColumns(VAL_RPT_HEADER_REF_COUNT).DataBodyRange
+  Set valRptColReferencesRng = _
+    valRptTbl.ListColumns(VAL_RPT_HEADER_REFERENCES).DataBodyRange
     
   namesCount = 0
-  For i = 1 To wsRefRptNamesColRng.Count
-    defName = wsRefRptNamesColRng(i)
-    If wsRefRptVisibleColRng(i).Value Then
+  For defNameDestNdx = 1 To wsRefRptNamesColRng.count
+    defName = wsRefRptNamesColRng(defNameDestNdx)
+    If wsRefRptVisibleColRng(defNameDestNdx).value Then
       refCountAllNotZero = False
       namesCount = namesCount + 1
       destRow = DEST_TABLE_HEADER_ROW + namesCount
-      destWs.Cells(destRow, DEST_COL_NAME).Value = "'" & defName
+      destWs.cells(destRow, DEST_COL_NAME).value = "'" & defName
       
       ' Print titles show up in the Define Names Worksheet References Report
       ' as having no references so we account for them here.
       ' They have format of 'WorksheetName'!Print_Titles
       If Right(defName, Len(DEF_NAME_PRINT_TITLES)) = DEF_NAME_PRINT_TITLES Then
-        destWs.Cells(destRow, DEST_COL_RWs_COUNT).Value = 1
-        destWs.Cells(destRow, DEST_COL_RWs_NAMES).Value = defName
+        destWs.cells(destRow, DEST_COL_RWs_COUNT).value = 1
+        destWs.cells(destRow, DEST_COL_RWs_NAMES).value = defName
         refCountAllNotZero = True
         GoTo Skip_For_Print_Title
       End If
       
-      destWs.Cells(destRow, DEST_COL_RWs_COUNT).Value = _
-        "'" & wsRefRptRefCntColRng(i)
-      refCountAllNotZero = refCountAllNotZero Or (wsRefRptRefCntColRng(i) <> 0)
+      destWs.cells(destRow, DEST_COL_RWs_COUNT).value = _
+        "'" & wsRefRptRefCntColRng(defNameDestNdx)
+      refCountAllNotZero = refCountAllNotZero Or (wsRefRptRefCntColRng(defNameDestNdx) <> 0)
       
-      destWs.Cells(destRow, DEST_COL_RWs_NAMES).Value = _
-        "'" & wsRefRptReferencesColRng(i)
+      destWs.cells(destRow, DEST_COL_RWs_NAMES).value = _
+        "'" & wsRefRptReferencesColRng(defNameDestNdx)
       
       ' Get the formulas that reference the defined name.
       refCount = 0
       refList = ""
       refCountLimitReached = False
-      For j = 1 To wsRefRptNamesColRng.Count
-        If j <> i Then
+      For defNameSrcNdx = 1 To wsRefRptNamesColRng.count
+        If defNameSrcNdx <> defNameDestNdx Then
           If ContainsString( _
-            searchIn:=wsRefRptRefersToColRng(j), _
+            searchIn:=wsRefRptRefersToColRng(defNameSrcNdx), _
             searchFor:=defName, _
             wholeWordOnly:=True, _
             matchCase:=False _
@@ -327,59 +335,54 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
               refList = refList & ", "
             End If
             
-            refList = refList & "{" & wsRefRptRefersToColRng(j) & "}"
+            refList = refList & "{" & wsRefRptRefersToColRng(defNameSrcNdx) & "}"
 
           End If
         End If
-      Next j
+      Next defNameSrcNdx
       refCountAllNotZero = refCountAllNotZero Or (refCount > 0)
       refCountStr = _
         "'" & _
         IIf(refCountLimitReached, _
           ">" & REF_COUNT_LIMIT, _
           refCount)
-      destWs.Cells(destRow, DEST_COL_RF_COUNT).Value = refCountStr
-      destWs.Cells(destRow, DEST_COL_RF_NAMES).Value = "'" & refList
+      destWs.cells(destRow, DEST_COL_RF_COUNT).value = refCountStr
+      destWs.cells(destRow, DEST_COL_RF_NAMES).value = "'" & refList
       
       ' Get the data validaton formulas that reference the defined name.
+      valTblRowCount = valRptTbl.DataBodyRange.Rows.count
       refCount = 0
-      refList = ""
-      refCountLimitReached = False
-      For j = 1 To valRptColFormulaSourceRng.Count
-        If ContainsString( _
-          searchIn:=valRptColFormulaSourceRng(j), _
+      Set refListCollection = New Collection
+      For defNameSrcNdx = 1 To valTblRowCount
+        isInF1 = ContainsString( _
+          searchIn:=valRptColF1Rng(defNameSrcNdx), _
           searchFor:=defName, _
           wholeWordOnly:=True, _
           matchCase:=False _
-          ) Then
-            
-          refCount = refCount + 1
-          
-          If refCount > REF_COUNT_LIMIT Then
-            refCountLimitReached = True
-            refList = refList + ", ..."
-            Exit For
-          End If
-          
-          If refCount <> 1 Then
-            refList = refList & ", "
-          End If
-          
-          refList = _
-            refList & _
-            "'" & valRptColSheetNameRng(j) & "'!" & _
-            valRptColCellAddressRng(j)
-
+          )
+        isInF2 = ContainsString( _
+          searchIn:=valRptColF2Rng(defNameSrcNdx), _
+          searchFor:=defName, _
+          wholeWordOnly:=True, _
+          matchCase:=False _
+          )
+        If isInF1 Or isInF2 Then
+          refCount = refCount + valRptColRefCountRng(defNameSrcNdx)
+          refListCollection.Add valRptColReferencesRng(defNameSrcNdx)
         End If
-      Next j
+      Next defNameSrcNdx
       refCountAllNotZero = refCountAllNotZero Or (refCount > 0)
-      refCountStr = _
-        "'" & _
-        IIf(refCountLimitReached, _
-          ">" & REF_COUNT_LIMIT, _
-          refCount)
-      destWs.Cells(destRow, DEST_COL_RDV_COUNT).Value = refCountStr
-      destWs.Cells(destRow, DEST_COL_RDV_NAMES).Value = "'" & refList
+      destWs.cells(destRow, DEST_COL_RDV_COUNT).value = refCount
+      Dim refListStr As String
+      If refCount > 0 Then
+        refListStr = CombineAndTruncateRefs( _
+          refStrings:=refListCollection, _
+          refCountLimit:=REF_COUNT_LIMIT)
+      Else
+        refListStr = ""
+      End If
+      
+      destWs.cells(destRow, DEST_COL_RDV_NAMES).value = "'" & refListStr
       
       ' Get the modules that reference the defined name.
       refCount = 0
@@ -415,14 +418,14 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fast As Boolean = False)
         IIf(refCountLimitReached, _
           ">" & REF_COUNT_LIMIT, _
           refCount)
-      destWs.Cells(destRow, DEST_COL_RVBA_COUNT).Value = refCountStr
-      destWs.Cells(destRow, DEST_COL_RVBA_NAMES).Value = "'" & refList
+      destWs.cells(destRow, DEST_COL_RVBA_COUNT).value = refCountStr
+      destWs.cells(destRow, DEST_COL_RVBA_NAMES).value = "'" & refList
       refCountAllNotZero = refCountAllNotZero Or (refCount > 0)
       
 Skip_For_Print_Title:
-      destWs.Cells(destRow, DEST_COL_ANY_REFS).Value = refCountAllNotZero
+      destWs.cells(destRow, DEST_COL_ANY_REFS).value = refCountAllNotZero
     End If
-  Next i
+  Next defNameDestNdx
 
   ' Convert the data range into an Excel Table (ListObject)
   If namesCount = 0 Then
@@ -430,7 +433,7 @@ Skip_For_Print_Title:
     ' avoid an error withthe ListObjects.Add()
     destTblRngStr = "A5:J5"
   Else
-    destTblRngStr = "A5:J" & namesCount + 4
+    destTblRngStr = "A5:J" & namesCount + 5
   End If
   Set destTblRng = destWs.Range(destTblRngStr)
   Set destTbl = destWs.ListObjects.Add( _
@@ -448,7 +451,7 @@ Skip_For_Print_Title:
     With .Sort
       With .SortFields
         .Clear
-        .Add2 Key:=destTbl.ListColumns(DEST_COL_NAME).Range
+        .Add2 key:=destTbl.ListColumns(DEST_COL_NAME).Range
       End With ' SortFields
       
       .Header = xlYes
@@ -482,6 +485,6 @@ Exit_Proc:
   End If
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
+  errorOccurred = True
   Resume Exit_Proc
 End Sub

@@ -1,15 +1,1 @@
-=LAMBDA(
-  pWtKg,
-  pHtM,
-  LET(
-    _comment,
-    N(
-      "function name: fn_BMI_METRIC"
-    ),
-    _result,
-    pWtKg /(
-      pHtM * pHtM
-    ),
-    _result
-  )
-)
+=LAMBDA(pWtKg,pHtM,LET(_comment,N("function name: fn_BMI_METRIC"),_result,pWtKg/(pHtM*pHtM),_result))

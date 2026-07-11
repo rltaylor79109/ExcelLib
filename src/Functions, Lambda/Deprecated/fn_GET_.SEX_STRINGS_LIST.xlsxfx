@@ -2,7 +2,7 @@
   LET(
     _comment,
     N(
-      "function name: fn_GET_.SEX_STRINGS_LIST"
+      "function name: fn_GET_SEX_STRINGS_LIST"
     ),
     _result,
     TRANSPOSE(

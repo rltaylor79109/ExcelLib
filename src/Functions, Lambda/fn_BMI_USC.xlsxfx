@@ -7,11 +7,9 @@
       "function name: fn_BMI_USC"
     ),
     _wtKg,
-    pWtLbs / val_POUNDS_PER_KILOGRAM(
-    ),
+    pWtLbs / c_POUNDS_PER_KILOGRAM,
     _htM,
-    pHtInches / val_INCHES_PER_METER(
-    ),
+    pHtInches / c_INCHES_PER_METER,
     _result,
     fn_BMI_METRIC(
       _wtKg,

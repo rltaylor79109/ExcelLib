@@ -1,0 +1,11 @@
+=LAMBDA(
+  LET(
+    _comment,
+    N(
+      "function name: c_INCHES_PER_METER"
+    ),
+    _result,
+    39.3701,
+    _result
+  )
+)

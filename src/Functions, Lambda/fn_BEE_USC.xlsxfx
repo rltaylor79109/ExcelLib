@@ -9,14 +9,11 @@
       "function name: fn_BEE_USC"
     ),
     _wtKg,
-    pWtLbs / val_POUNDS_PER_KILOGRAM(
-    ),
+    pWtLbs / c_POUNDS_PER_KILOGRAM,
     _htM,
-    pHtInches / val_INCHES_PER_METER(
-    ),
+    pHtInches / c_INCHES_PER_METER,
     _htCm,
-    _htM * val_CM_PER_METER(
-    ),
+    _htM * c_CM_PER_METER,
     _result,
     fn_BEE_METRIC(
       _wtKg,

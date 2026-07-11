@@ -3,7 +3,7 @@
 '   their properites: 1) Name, 2) RefersTo (definition), 3) Scope, 4) Value,
 '   5) Visible, 6) Comment, 7) Count of references, 8) References.
 ' Parameter(s)
-'   fast - if TRUE, dramatically speeds up method by not determining references
+'   fastMode - if TRUE, dramatically speeds up method by not determining references
 '     or reference counts; otherise, much slower and displays references and
 '     reference counts. It is an optional parameter with a default value of
 '     false.
@@ -12,10 +12,10 @@
 '     the user when complete. It is an optional parameter with a default value
 '     of False.
 ' Date Created: 2025-10-19
-' Date Last Modified: 2026-06-24
+' Date Last Modified: 2026-07-10
 '------------------------------------------------------------------------------'
 Public Sub UpsertDefNamesWsRefRpt( _
-  Optional fast As Boolean = False, _
+  Optional fastMode As Boolean = False, _
   Optional silent As Boolean = False)
   
   On Error GoTo Err_Proc
@@ -52,14 +52,16 @@ Public Sub UpsertDefNamesWsRefRpt( _
   Const REPORT_WORKSHEET_TITLE = "Defined Names, Worksheet References"
   
   Dim aCell As Range
-  Dim wbName As Name
+  Dim wbDefName As Name
 
   Dim creatingNewWs As Boolean
   Dim errorOccurred As Boolean
+  Dim firstRef As Boolean
+  Dim inStrResult As Integer
   Dim mbButtons As VbMsgBoxStyle
   Dim mbPrompt As String
   Dim mbTitle As String
-  Dim ps As ProtectionState
+  Dim ps As clsProtectionState
   Dim nameValue As Variant
 
   Dim rptWs As Worksheet
@@ -76,7 +78,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
   Dim updateButtonSlow As Button
   Dim wb As Workbook
   Dim ws As Worksheet
-  
+  Dim wsContainsRefs As Boolean
   errorOccurred = False
   
   ' Optimization: Turn off UI updates
@@ -91,19 +93,19 @@ Public Sub UpsertDefNamesWsRefRpt( _
   creatingNewWs = (rptWs Is Nothing)
   
   If creatingNewWs Then
-    Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.Count - 1))
+    Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
     rptWs.Name = REPORT_WORKSHEET_NAME
     ' This requires "Trust access to the VBA project object model" to be enabled and
     ' also for the workbook file to unblocked.
     ThisWorkbook.VBProject.VBComponents(rptWs.codeName).Name = REPORT_WORKSHEET_CODENAME
 
-    With rptWs.Cells.Font
+    With rptWs.cells.Font
         .Name = "Aptos Narrow"
         .Size = 10
     End With
       
-    With rptWs.Cells(1, 1)
-      .Value = REPORT_WORKSHEET_TITLE
+    With rptWs.cells(1, 1)
+      .value = REPORT_WORKSHEET_TITLE
       With .Font
         .Name = "Aptos Display"
         .Size = 12
@@ -138,7 +140,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
       .Placement = xlFreeFloating
     End With
   Else
-    Set ps = ProtectionStateStatic.Create(rptWs)
+    Set ps = clsProtectionStateStatic.Create(rptWs)
     rptWs.Unprotect
     
     ' Clear existing table
@@ -150,25 +152,25 @@ Public Sub UpsertDefNamesWsRefRpt( _
   
   ' Add headers
   With rptWs
-    .Cells(TABLE_FIRST_ROW, COL_NUM_NAME) = COL_HEADER_NAME
-    .Cells(TABLE_FIRST_ROW, COL_NUM_REFERS_TO) = COL_HEADER_REFERS_TO
-    .Cells(TABLE_FIRST_ROW, COL_NUM_SCOPE) = COL_HEADER_SCOPE
-    .Cells(TABLE_FIRST_ROW, COL_NUM_VALUE) = COL_HEADER_VALUE
-    .Cells(TABLE_FIRST_ROW, COL_NUM_VISIBLE) = COL_HEADER_VISIBLE
-    .Cells(TABLE_FIRST_ROW, COL_NUM_COMMENT) = COL_HEADER_COMMENT
-    .Cells(TABLE_FIRST_ROW, COL_NUM_REF_COUNT) = _
-      IIf(fast, "", COL_HEADER_REF_COUNT)
-    .Cells(TABLE_FIRST_ROW, COL_NUM_REFS) = IIf(fast, "", COL_HEADER_REFS)
+    .cells(TABLE_FIRST_ROW, COL_NUM_NAME) = COL_HEADER_NAME
+    .cells(TABLE_FIRST_ROW, COL_NUM_REFERS_TO) = COL_HEADER_REFERS_TO
+    .cells(TABLE_FIRST_ROW, COL_NUM_SCOPE) = COL_HEADER_SCOPE
+    .cells(TABLE_FIRST_ROW, COL_NUM_VALUE) = COL_HEADER_VALUE
+    .cells(TABLE_FIRST_ROW, COL_NUM_VISIBLE) = COL_HEADER_VISIBLE
+    .cells(TABLE_FIRST_ROW, COL_NUM_COMMENT) = COL_HEADER_COMMENT
+    .cells(TABLE_FIRST_ROW, COL_NUM_REF_COUNT) = _
+      IIf(fastMode, "", COL_HEADER_REF_COUNT)
+    .cells(TABLE_FIRST_ROW, COL_NUM_REFS) = IIf(fastMode, "", COL_HEADER_REFS)
     .Range( _
-      .Cells(TABLE_FIRST_ROW, 1), _
-      .Cells(TABLE_FIRST_ROW, COL_COUNT) _
+      .cells(TABLE_FIRST_ROW, 1), _
+      .cells(TABLE_FIRST_ROW, COL_COUNT) _
     ).Font.Bold = True
   End With
   
   rowNum = TABLE_FIRST_ROW + 1
   
   ' Loop through all defined names
-  For Each wbName In wb.Names
+  For Each wbDefName In wb.Names
     ' Limit to 5 names to speed up testing.
     #If DEBUG_MODE Then
       If rowNum > TABLE_FIRST_ROW + 5 Then Exit For
@@ -177,34 +179,35 @@ Public Sub UpsertDefNamesWsRefRpt( _
 ' Uncomment this block to processing names that are defined at both
 ' the Workbook and Worksheet level.
     ' If this a Worksheet scoped Name?
-'    If Not (wbName.Parent Is wb) Then
+'    If Not (wbDefName.Parent Is wb) Then
 '      ' Does the same name exist as the Workbook scoped level.
 '      ' If it does, skip the Worksheet scoped level.
 '      On Error Resume Next
-'      Set testName = wb.Names(wbName.Name)
+'      Set testName = wb.Names(wbDefName.Name)
 '      err.Clear
 '      On Error GoTo Err_Proc
 '      If Not testName Is Nothing Then
-'         GoTo SkipName ' Skip this iteration and go to the next name
+'         GoTo Continue_WbDefName ' Skip this iteration and go to the next name
 '      End If
 '    End If
     
-    rptWs.Cells(rowNum, COL_NUM_NAME).Value = "'" & wbName.Name
+    ' Defined name.
+    rptWs.cells(rowNum, COL_NUM_NAME).value = "'" & wbDefName.Name
          
-    ' Use RefersTo for the reference definition
-    rptWs.Cells(rowNum, COL_NUM_REFERS_TO).Value = "'" & wbName.RefersTo
+    ' Use RefersTo, the defined name definition.
+    rptWs.cells(rowNum, COL_NUM_REFERS_TO).value = "'" & wbDefName.RefersTo
 
     ' Scope
-    If wbName.Parent Is wb Then
-      rptWs.Cells(rowNum, COL_NUM_SCOPE).Value = "'Workbook"
+    If wbDefName.Parent Is wb Then
+      rptWs.cells(rowNum, COL_NUM_SCOPE).value = "'Workbook"
     Else
-      rptWs.Cells(rowNum, COL_NUM_SCOPE).Value = "'" & wbName.Parent.Name
+      rptWs.cells(rowNum, COL_NUM_SCOPE).value = "'" & wbDefName.Parent.Name
     End If
       
-    ' Get the evaluated value of the name
-    nameValue = Application.Evaluate(wbName.RefersTo)
+    ' Value
+    nameValue = Application.Evaluate(wbDefName.RefersTo)
     If IsError(nameValue) Then
-        rptWs.Cells(rowNum, COL_NUM_VALUE).Value = "'Error or Invalid"
+        rptWs.cells(rowNum, COL_NUM_VALUE).value = "'Error or Invalid"
     ElseIf IsArray(nameValue) Then
       ' Handle ranges (arrays)
       Dim valueString As String
@@ -235,69 +238,103 @@ Public Sub UpsertDefNamesWsRefRpt( _
         If Len(valueString) > 0 Then
           valueString = Left(valueString, Len(valueString) - 2)
         End If
-        rptWs.Cells(rowNum, COL_NUM_VALUE).Value = "'" & valueString
+        rptWs.cells(rowNum, COL_NUM_VALUE).value = "'" & valueString
       Else
-        rptWs.Cells(rowNum, COL_NUM_VALUE).Value = "'Array (Non-standard)"
+        rptWs.cells(rowNum, COL_NUM_VALUE).value = "'Array (Non-standard)"
       End If
     Else
       ' Handle single values or formulas
-      rptWs.Cells(rowNum, COL_NUM_VALUE).Value = "'" & nameValue
+      rptWs.cells(rowNum, COL_NUM_VALUE).value = "'" & nameValue
     End If
     
-    rptWs.Cells(rowNum, COL_NUM_VISIBLE) = wbName.visible
-    rptWs.Cells(rowNum, COL_NUM_COMMENT) = "'" & wbName.Comment
+    ' Visible
+    rptWs.cells(rowNum, COL_NUM_VISIBLE) = wbDefName.Visible
     
-    If Not fast Then
-      ' Search for cells using the name in formulas, excluding
-      ' "Defined Names Report"
-      refCountLimitReached = False
-      refCount = 0
-      refList = ""
-      For Each ws In wb.Worksheets
-        For Each aCell In ws.UsedRange
-          If aCell.HasFormula Then
-            If InStr(1, aCell.formula, wbName.Name, vbTextCompare) > 0 Then
-            
-              refCount = refCount + 1
-              
-              If refCount > REF_COUNT_LIMIT Then
-                refCountLimitReached = True
-                refList = refList + ", ..."
-                Exit For
-              End If
-
-            If refCount <> 1 Then
-              refList = refList & "; "
-            End If
-            
-            refList = refList & _
-              "'" & ws.Name & "'" & "!" _
-              & aCell.Address
-              
-            End If
+    ' Comment
+    rptWs.cells(rowNum, COL_NUM_COMMENT) = "'" & wbDefName.Comment
+    
+    If fastMode Then GoTo Skip_Reference_Search
+    
+    ' Search for cells using the name in formulas, excluding
+    ' "Defined Names Report"
+    refCountLimitReached = False
+    refCount = 0
+    refList = ""
+    
+    ' Non-visible defined names are used by Excel for backward compatibilty.
+    ' The do not have Worksheet cells do not reference them directly.
+    If Not wbDefName.Visible Then GoTo Continue_WbDefName
+    
+    For Each ws In wb.Worksheets
+      wsContainsRefs = False
+      firstRef = True
+      If _
+        (ws.codeName = "SheetDefNamesWsRefsRpt") _
+        Or (ws.codeName = "SheetDefNamesAllRefs") _
+        Or (ws.codeName = "SheetDvAllRpt") _
+        Or (ws.codeName = "SheetDvByForumlaRpt") Then
+        GoTo Continue_Ws
+      End If
+      
+      For Each aCell In ws.UsedRange
+        If Not aCell.HasFormula Then GoTo Continue_aCell
+        
+        inStrResult = InStr(1, aCell.formula, wbDefName.Name, vbTextCompare)
+        
+        If inStrResult = 0 Then GoTo Continue_aCell
+        
+        refCount = refCount + 1
+        
+        If refCount > REF_COUNT_LIMIT Then
+          refCountLimitReached = True
+          Exit For
+        End If
+      
+        If firstRef Then
+          If refCount <> 1 Then
+            refList = refList & ";"
           End If
-        Next aCell
-      Next ws
-            
-      refCountStr = _
-        "'" & _
-        IIf(refCountLimitReached, _
-          ">" & REF_COUNT_LIMIT, _
-          refCount)
-      rptWs.Cells(rowNum, COL_NUM_REF_COUNT).Value = refCountStr
-      rptWs.Cells(rowNum, COL_NUM_REFS).Value = "'" & refList
+          refList = refList & "'" & ws.Name & "'!"
+          firstRef = False
+        ' Except for the 1st cell address, add the cell address separator, ",".
+        ElseIf refCount <> 1 Then
+          refList = refList & ","
+        End If
+        
+        refList = refList & aCell.Address
+        wsContainsRefs = True
+Continue_aCell:
+      Next aCell
+      
+Continue_Ws:
+    Next ws
+    
+    If refCountLimitReached Then
+      ' Indicate that the reference count exceeded the limit.
+      refCountStr = ">" & REF_COUNT_LIMIT
+      ' Indicate that not all the references are shown.
+      refList = refList & "..."
+    Else
+      refCountStr = refCount
     End If
-
+    
+    ' Prepend "'" to force Excel to treat this value as text so that
+    ' it will sort properly.
+    rptWs.cells(rowNum, COL_NUM_REF_COUNT).value = "'" & refCountStr
+    rptWs.cells(rowNum, COL_NUM_REFS).value = "'" & refList
+    
+Skip_Reference_Search:
     rowNum = rowNum + 1
-SkipName:
-  Next wbName
+
+Continue_WbDefName:
+  Next wbDefName
   
   ' Convert Data Range into an Excel Table (ListObject)
   ' If no names were found, the table's first row will be empty
   With rptWs
     Set tblRange = .Range( _
-      .Cells(TABLE_FIRST_ROW, 1), _
-      .Cells(rowNum - 1, IIf(fast, COL_COUNT - 2, COL_COUNT)) _
+      .cells(TABLE_FIRST_ROW, 1), _
+      .cells(rowNum - 1, IIf(fastMode, COL_COUNT - 2, COL_COUNT)) _
       )
   End With
   
@@ -318,9 +355,9 @@ SkipName:
     
       With .SortFields
         .Clear
-        .Add2 Key:=rptTable.ListColumns(COL_NUM_VISIBLE).Range
-        .Add2 Key:=rptTable.ListColumns(COL_NUM_NAME).Range
-        .Add2 Key:=rptTable.ListColumns(COL_NUM_SCOPE).Range
+        .Add2 key:=rptTable.ListColumns(COL_NUM_VISIBLE).Range
+        .Add2 key:=rptTable.ListColumns(COL_NUM_NAME).Range
+        .Add2 key:=rptTable.ListColumns(COL_NUM_SCOPE).Range
       End With 'SortFields
       
       .Header = xlYes
