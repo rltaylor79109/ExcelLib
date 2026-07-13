@@ -1,4 +1,3 @@
-'------------------------------------------------------------------------------'
 ' Summary: Gets the data validation Formula1 and Forumla2 properties and their
 '   types for the specified cell.
 ' Parameter(s):
@@ -11,7 +10,7 @@
 '     cell. It is an output parameter.
 '   f2Type - The data validation Formula2's type. It is an output parameter.
 ' Date Created: 2026-07-05
-' Date Last Modified: 2026-07-07
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Sub GetDvFormulasAndTypes( _
   targetCell As Range, _
@@ -62,7 +61,7 @@ Public Sub GetDvFormulasAndTypes( _
   
   ' 1. Does the cell have validation?
   On Error Resume Next
-  f1 = targetCell.Validation.formula1
+  f1 = targetCell.Validation.Formula1
   err.Clear
   On Error GoTo Err_Proc
   If f1 = "" Then

@@ -1,12 +1,12 @@
 '------------------------------------------------------------------------------'
-' Purpose:  Prints a list of the names of all the embedded charts in this
+' Summary: Prints a list of the names of all the embedded charts in this
 '   workbook to debug output.
 ' Date Created: 2026-05-17
-' Date Last Modified: 2026-06-09
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Sub ListAllEmbeddedChartNames()
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "ListAllEmbeddedChartNames"
+  Const methodName As String = "ListAllEmbeddedChartNames"
 
   Dim chtObj As ChartObject
   Dim chtTitle As String
@@ -26,7 +26,7 @@ Sub ListAllEmbeddedChartNames()
         chtTitle = "[No Title]"
       End If
       
-      output = ws.name & ", " & chtObj.name & ", " & chtTitle
+      output = ws.Name & ", " & chtObj.Name & ", " & chtTitle
       Debug.Print output
     Next chtObj
   Next ws
@@ -38,6 +38,6 @@ Sub ListAllEmbeddedChartNames()
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
+  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
   Resume Exit_Proc
 End Sub

@@ -1,13 +1,13 @@
 '------------------------------------------------------------------------------'
-' Purpose:  Determines whether a string contains any of the characters that
+' Summary: Determines whether a string contains any of the characters that
 '   are not permitted in sheet names. The prohibited characters are
 '   \ / * [ ] ? :
-' Arguments:
+' Parameter(s):
 '   pSheetName - The string to test.
 ' Return:   True if pSheetName contains any of the prohibited characters,
 '   otherwise false.
 ' Date Created: 2018-08-30
-' Date Last Modified: 2026-05-18
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function ContainsIllegalWorksheetNameCharacters( _
   pSheetName As String) As Boolean
@@ -22,6 +22,6 @@ Public Function ContainsIllegalWorksheetNameCharacters( _
 Exit_Proc:
   Exit Function
 Err_Proc:
-  ShowMethodErrorMsgBox err, mModuleName, METHOD_NAME
+  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Function

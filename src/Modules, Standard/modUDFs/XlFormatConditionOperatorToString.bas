@@ -1,10 +1,12 @@
 '------------------------------------------------------------------------------'
-' Summary: Creates a string representation of a member of the
+' Summary: Creates a string representation of the specified member of the
 '   XlFormatConditionOperator enumeration.
 ' Parameter(s):
 '   op - A member of the XlFormatConditionOperator enumeration.
+' Return(s): A string representation of the specified member of the
+'   XlFormatConditionOperator enumeration.
 ' Date Created: 2026-07-07
-' Date Last Modified: 2026-07-07
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function XlFormatConditionOperatorToString( _
   op As XlFormatConditionOperator) As String

@@ -6,7 +6,7 @@
 '     the error.
 '   METHOD_NAME - The name of the method that produced the error.
 ' Date Created: 2026-04-19
-' Date Last Modified: 2026-05-08
+' Date Last Modified: 2026-07-13
 '------------------------------------------------------------------------------'
 Public Sub ShowMethodErrorMsgBox( _
   err As ErrObject, _
@@ -14,11 +14,11 @@ Public Sub ShowMethodErrorMsgBox( _
   METHOD_NAME As String)
 
   Dim prompt As String
-  Dim buttons As VbMsgBoxStyle
+  Dim buttons As Long
   Dim title As String
   
   prompt = "Source: Method " & moduleName & "." & METHOD_NAME & vbCrLf & _
-    "Error " & err.Number & ": " & err.Description
+    "Error " & err.Number & ": " & err.description
   buttons = VbMsgBoxStyle.vbExclamation
   title = moduleName & "." & METHOD_NAME
   MsgBox prompt, buttons, title

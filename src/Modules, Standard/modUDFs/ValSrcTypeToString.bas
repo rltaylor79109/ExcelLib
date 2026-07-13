@@ -1,10 +1,12 @@
 '------------------------------------------------------------------------------'
-' Summary: Creates a string representation of a member of the
+' Summary: Creates a string representation of the specified member of the
 '   ValidationSrcType enumeration.
 ' Parameter(s):
-'   vst - A member of the ValidationSrcType enumeration..
+'   vst - A member of the ValidationSrcType enumeration.
+' Returns - A string representation of the specified member of the
+'   ValidationSrcType enumeration.
 ' Date Created: 2026-07-04
-' Date Last Modified: 22026-07-04
+' Date Last Modified: 22026-07-12
 '------------------------------------------------------------------------------'
 Public Function ValSrcTypeToString(vst As ValidationSrcType) As String
   On Error GoTo Err_Proc

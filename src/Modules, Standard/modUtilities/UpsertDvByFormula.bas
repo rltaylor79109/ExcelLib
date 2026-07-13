@@ -7,7 +7,7 @@
 '     the user when complete. It is an optional parameter with a default value
 '     of False.'
 ' Date Created: 2026-07-07
-' Date Last Modified: 2026-07-08
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
   On Error GoTo Err_Proc
@@ -34,7 +34,7 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
   Const RPT_WS_NAME = "DV by F Rpt"
   Const RPT_WS_TITLE = "Formulas Used for Data Validation Report"
   Const TBL_FIRST_ROW As Long = 3
-  Const TBL_NAME As String = "tbl_Dv_F_Rpt"
+  Const TBL_NAME As String = "tbl_DvF_Rpt"
 
   Dim creatingNewWs As Boolean
   Dim errorOccurred As Boolean
@@ -77,12 +77,12 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
     With rptWs
       .Name = RPT_WS_NAME
 
-      With .Cells.Font
+      With .cells.Font
         .Name = "Aptos Narrow"
         .Size = 10
       End With
 
-      With .Cells(1, 1)
+      With .cells(1, 1)
         .value = RPT_WS_TITLE
         With .Font
           .Name = "Aptos Display"
@@ -117,39 +117,40 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
   End If
 
   ' Headers
-  rptWs.Cells(TBL_FIRST_ROW, COL_IDX_F1).value = _
+  rptWs.cells(TBL_FIRST_ROW, COL_IDX_F1).value = _
     COL_HDR_F1 ' Col 1
-  rptWs.Cells(TBL_FIRST_ROW, COL_IDX_F2).value = _
+  rptWs.cells(TBL_FIRST_ROW, COL_IDX_F2).value = _
     COL_HDR_F2 ' Col 2
-  rptWs.Cells(TBL_FIRST_ROW, COL_IDX_REF_COUNT).value = _
+  rptWs.cells(TBL_FIRST_ROW, COL_IDX_REF_COUNT).value = _
     COL_HDR_REF_COUNT ' Col 3
-  rptWs.Cells(TBL_FIRST_ROW, COL_IDX_REFS).value = _
+  rptWs.cells(TBL_FIRST_ROW, COL_IDX_REFS).value = _
     COL_HDR_REFS ' Col 4
     
   rptWs.Range( _
-    rptWs.Cells(TBL_FIRST_ROW, 1), _
-    rptWs.Cells(TBL_FIRST_ROW, COL_COUNT) _
+    rptWs.cells(TBL_FIRST_ROW, 1), _
+    rptWs.cells(TBL_FIRST_ROW, COL_COUNT) _
     ).Font.Bold = True
   rowCount = TBL_FIRST_ROW + 1
   
   Set formulaRefInfoDict = New Dictionary
   ' Loop through all sheets to find Validation
   For Each ws In ThisWorkbook.Worksheets
-    If ws.codeName = RPT_WS_CODENAME Then GoTo NEXT_WS_ITER
+    ' Exclude the reference report worksheets to avoid duplications.
+    If IsWsRefRpt(ws.codeName) Then GoTo Continue_ws
 
     Set valRng = Nothing
     ' An attempt reference to Range.SpecialCells(xlCellTypeAllValidation)
     ' will raise an error if no cells in the range have validation.
     On Error Resume Next
-    Set valRng = ws.Cells.SpecialCells(xlCellTypeAllValidation)
+    Set valRng = ws.cells.SpecialCells(xlCellTypeAllValidation)
     err.Clear
     On Error GoTo Err_Proc
     
     ' If no cells in this worksheet have defined data validation, then
     ' go to next worksheet iteration.
-    If valRng Is Nothing Then GoTo NEXT_WS_ITER
+    If valRng Is Nothing Then GoTo Continue_ws
     
-    For Each targetCell In valRng.Cells
+    For Each targetCell In valRng.cells
       ' Gemini suggested error checking here but the Set valRng statement
       ' above should insure each cell in the range has validation defined.
             
@@ -165,18 +166,18 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
         wsName:=ws.Name, _
         cellAddress:=targetCell.Address
     Next targetCell
-NEXT_WS_ITER:
+Continue_ws:
   Next ws
       
   For Each varFormulaKey In formulaRefInfoDict.Keys
     Set formulaRefInfo = formulaRefInfoDict(varFormulaKey)
-    rptWs.Cells(rowCount, COL_IDX_F1).value = _
+    rptWs.cells(rowCount, COL_IDX_F1).value = _
       "'" & formulaRefInfo.Formula1 ' col 1
-    rptWs.Cells(rowCount, COL_IDX_F2).value = _
+    rptWs.cells(rowCount, COL_IDX_F2).value = _
       "'" & formulaRefInfo.formula2 ' col 2
-    rptWs.Cells(rowCount, COL_IDX_REF_COUNT).value = _
+    rptWs.cells(rowCount, COL_IDX_REF_COUNT).value = _
       formulaRefInfo.GetRefCount ' col 3
-    rptWs.Cells(rowCount, COL_IDX_REFS).value = _
+    rptWs.cells(rowCount, COL_IDX_REFS).value = _
       "'" & formulaRefInfo.GetRefString( _
         refLimitExceeded:=refCountLimitExceeded, _
         refLimit:=REF_COUNT_LIMIT) ' col 4
@@ -186,14 +187,14 @@ NEXT_WS_ITER:
   ' Convert Data Range into an Excel Table (ListObject)
   If rowCount > TBL_FIRST_ROW + 2 Then
     Set tblRange = rptWs.Range( _
-      rptWs.Cells(TBL_FIRST_ROW, 1), _
-      rptWs.Cells(rowCount - 1, COL_COUNT))
+      rptWs.cells(TBL_FIRST_ROW, 1), _
+      rptWs.cells(rowCount - 1, COL_COUNT))
   ' If no data validation was found, create table with header
   ' and one blank row.
   Else
     Set tblRange = rptWs.Range( _
-      rptWs.Cells(TBL_FIRST_ROW, 1), _
-      rptWs.Cells(TBL_FIRST_ROW + 1, COL_COUNT))
+      rptWs.cells(TBL_FIRST_ROW, 1), _
+      rptWs.cells(TBL_FIRST_ROW + 1, COL_COUNT))
   End If
   
   Set rptTable = rptWs.ListObjects.Add( _

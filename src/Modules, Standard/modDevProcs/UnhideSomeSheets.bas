@@ -1,11 +1,11 @@
 '------------------------------------------------------------------------------'
-' Purpose:  Unhides worksheets based on user input.
+' Summary: Unhides worksheets based on user input.
 ' Date Created: 2017-03-24
-' Date Last Modified: 2026-06-09
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Sub UnhideSomeSheets()
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "UnhideSomeSheets"
+  Const methodName As String = "UnhideSomeSheets"
   
   Dim buttons As VbMsgBoxStyle
   Dim prompt As String
@@ -17,7 +17,7 @@ Public Sub UnhideSomeSheets()
   Set wb = ThisWorkbook
   For Each ws In wb.Worksheets
     If ws.Visible = xlSheetHidden Then
-      wsName = ws.name
+      wsName = ws.Name
       prompt = "Unhide the following sheet?" _
         & vbNewLine & wsName
       buttons = vbYesNoCancel
@@ -33,6 +33,5 @@ Public Sub UnhideSomeSheets()
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
-  Resume Exit_Proc
-End Sub
+  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
+  Resume Ex

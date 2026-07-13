@@ -1,17 +1,20 @@
 '------------------------------------------------------------------------------'
-' Purpose:  Determines if one string contains another string search for whole
+' Summary: Determines if one string contains another string search for whole
 '   words only.
 ' Parameter(s):
 '   searchIn - The main string you want to search inside of.
 '   searchFor - The string you are looking for.
-'   wholeWordOnly - If True, the searching looks for whole words only. It is
-'     an optional parameter with a default value of False.
-'   matchCase - If true the search is case-sensitive; otherwise the
+'   wholeWordOnly - If True, the search matches whole words only, so that
+'     "Pie" matches "Apple Pie" but does not match "Pied Piper"; otherwise,
+'     the match occurs whether the string is within a word or not
+'     so that "Pie" matches both "Apple Pie" and "Pied Piper". It is an
+'     optional parameter with a default value of False.
+'   matchCase - If True, the search is case-sensitive; otherwise the
 '     search is case-insensitive. It is an optional parameter with a default
 '     value of False.
 ' Returns: True if searchIn contains the whole wordsearchFor; otherwise False.
 ' Date Created: 2026-06-15
-' Date Last Modified: 2026-06-15
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function ContainsString( _
   ByVal searchIn As String, _
@@ -25,9 +28,9 @@ Public Function ContainsString( _
   
   Dim escapedSearchFor As String
   Dim finalPattern As String
-  Dim regEx As RegExp
+  Dim RegEx As RegExp
 
-  Set regEx = New RegExp
+  Set RegEx = New RegExp
   
   ' Quick exit if either string is empty
   If Len(searchIn) = 0 Or Len(searchFor) = 0 Then
@@ -43,13 +46,13 @@ Public Function ContainsString( _
       finalPattern = escapedSearchFor
   End If
   
-  With regEx
+  With RegEx
       .Pattern = finalPattern
       .IgnoreCase = Not matchCase
       .Global = False
   End With
   
-  ContainsString = regEx.test(searchIn)
+  ContainsString = RegEx.test(searchIn)
   
 Exit_Proc:
   Exit Function

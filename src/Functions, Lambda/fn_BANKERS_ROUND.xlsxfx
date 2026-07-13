@@ -4,7 +4,7 @@
   LET(
     _comment,
     N(
-      "function name: BANKERSROUND"
+      "function name: fn_BANKERS_ROUND"
     ),
     _defaultPrecision,
     2,

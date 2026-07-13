@@ -9,7 +9,7 @@
 '     interest.
 ' Return(s): The worksheet object with the specifed CodeName property.
 ' Date Created: 2026-05-17
-' Date Last Modified: 2026-06-09
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function GetWorksheetByCodeName(pCodeName As String) As Worksheet
   On Error GoTo Err_Proc
@@ -23,7 +23,7 @@ Public Function GetWorksheetByCodeName(pCodeName As String) As Worksheet
   
   sheetFound = False
   For Each ws In wb.Worksheets
-      If UCase(ws.CodeName) = UCase(pCodeName) Then
+      If UCase(ws.codeName) = UCase(pCodeName) Then
         Set GetWorksheetByCodeName = ws
         sheetFound = True
         GoTo Exit_Proc

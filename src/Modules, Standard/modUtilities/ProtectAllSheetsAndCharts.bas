@@ -1,5 +1,5 @@
 '------------------------------------------------------------------------------'
-' Purpose: Protects all of the sheets and charts in the Workbook.
+' Summary: Protects all of the sheets and charts in the Workbook.
 ' Remarks: Requires reference to "Microsoft Scripting Runtime."
 ' Parameter(s):
 '   excludewsNamesDict - A dictionary that contains the names of the worksheets
@@ -11,7 +11,7 @@
 '     or display a message to the user when complete. It is an optional
 '     parameter with a default value of False.
 ' Date Created: 2026-02-04
-' Date Last Modified: 2026-06-10
+' Date Last Modified: 2026-07-13
 '------------------------------------------------------------------------------'
 Public Sub ProtectAllSheetsAndCharts( _
   Optional ByVal excludewsNamesDict As Scripting.Dictionary = Nothing, _
@@ -34,16 +34,16 @@ Public Sub ProtectAllSheetsAndCharts( _
   For Each ws In wb.Worksheets
     excludedWs = False
     If Not (excludewsNamesDict Is Nothing) Then
-      excludedWs = excludewsNamesDict.Exists(ws.name)
+      excludedWs = excludewsNamesDict.Exists(ws.Name)
     End If
     
     If excludedWs Then
       If Not silentMode Then
-        Debug.Print "Excluding " & ws.name & " from Protection"
+        Debug.Print "Excluding " & ws.Name & " from Protection"
       End If
     Else
       If Not silentMode Then
-        Debug.Print "Protecting " & ws.name
+        Debug.Print "Protecting " & ws.Name
       End If
       ws.Protect
     End If
@@ -52,16 +52,16 @@ Public Sub ProtectAllSheetsAndCharts( _
   For Each cht In wb.Charts
     excludedCht = False
     If Not (excludeChrtNamesDict Is Nothing) Then
-      excludedCht = excludeChrtNamesDict.Exists(cht.name)
+      excludedCht = excludeChrtNamesDict.Exists(cht.Name)
     End If
     
     If excludedCht Then
       If Not silentMode Then
-        Debug.Print "Excluding " & cht.name & " from Protection"
+        Debug.Print "Excluding " & cht.Name & " from Protection"
       End If
     Else
       If Not silentMode Then
-        Debug.Print "Protecting " & cht.name
+        Debug.Print "Protecting " & cht.Name
       End If
       cht.Protect
     End If

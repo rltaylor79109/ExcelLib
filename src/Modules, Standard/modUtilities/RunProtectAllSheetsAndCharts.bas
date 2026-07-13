@@ -3,7 +3,7 @@
 ' Remarks: It is a wrapper that allows this method to be assigned as the macro
 '   for a button on a worksheet
 ' Date Created: 2026-05-08
-' Date Last Modified: 2026-06-14
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Sub RunProtectAllSheetsAndCharts()
   On Error GoTo Err_Proc

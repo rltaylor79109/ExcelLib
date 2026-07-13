@@ -4,9 +4,9 @@
 '   err - The object that contains the error information
 ' Return(s): The standard prompt for a method error message box.
 ' Date Created: 2026-04-19
-' Date Last Modified: 2026-05-04
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function GetErrorMsgBoxPrompt(err As ErrObject)
   GetErrorMsgBoxPrompt = _
-    "Error: " & err.Number & vbCrLf & err.Description
+    "Error: " & err.Number & vbCrLf & err.description
 End Function

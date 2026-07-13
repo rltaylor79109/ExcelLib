@@ -10,7 +10,7 @@
 ' Return(s): The value of the Name property from the Worksheet specified by
   ' CodeName.
 ' Date Created: 2026-05-29
-' Date Last Modified: 2026-05-29
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function GetWorksheetNameByCodeName(pCodeName As String) As String
   On Error GoTo Err_Proc
@@ -22,7 +22,7 @@ Public Function GetWorksheetNameByCodeName(pCodeName As String) As String
   If ws Is Nothing Then
     GetWorksheetNameByCodeName = "NOT FOUND"
   Else
-    GetWorksheetNameByCodeName = ws.name
+    GetWorksheetNameByCodeName = ws.Name
   End If
   
 Exit_Proc:

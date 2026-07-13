@@ -9,7 +9,7 @@
 '     interest.
 ' Return(s): The chartsheet object with the specified CodeName property.
 ' Date Created: 2026-05-17
-' Date Last Modified: 2026-06-09
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function GetChartsheetByCodeName(pCodeName As String) As Chart
   On Error GoTo Err_Proc
@@ -23,7 +23,7 @@ Public Function GetChartsheetByCodeName(pCodeName As String) As Chart
   errorOccurred = False
   Set wb = ThisWorkbook
   For Each cs In wb.Charts
-    If UCase(cs.CodeName) = UCase(pCodeName) Then
+    If UCase(cs.codeName) = UCase(pCodeName) Then
       Set GetChartsheetByCodeName = cs
       GoTo Exit_Proc
     End If

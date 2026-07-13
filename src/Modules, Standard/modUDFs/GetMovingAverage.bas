@@ -1,5 +1,5 @@
 '------------------------------------------------------------------------------'
-' Summary:  Gets the moving average of the specified period of the values
+' Summary: Gets the moving average of the specified period of the values
 ' contained in the specified range.
 ' Parameter(s):
 '   pRange - Range in which to find the moving average.

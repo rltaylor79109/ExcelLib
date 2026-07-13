@@ -1,15 +1,16 @@
 '------------------------------------------------------------------------------'
-' Summary: Creates a string representation of a member of the VbCallType
-'   enumeration.
+' Summary: Creates a string representation of the specified member of the
+'   VbCallType enumeration.
 ' Parameter(s):
 '   pCallType - A member of the vbCallType enumeration.
-'   callType - The property call type.
+' Return(s): A string representation of the specified member of the
+'   VbCallType enumeration.
 ' Date Created: 2026-05-08
-' Date Last Modified: 2026-05-08
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function VbCallTypeToString(pCallType As VbCallType) As String
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "VbCallTypeToString"
+  Const methodName As String = "VbCallTypeToString"
   
   Select Case pCallType
     Case VbGet
@@ -27,6 +28,6 @@ Public Function VbCallTypeToString(pCallType As VbCallType) As String
 Exit_Proc:
   Exit Function
 Err_Proc:
-  ShowMethodErrorMsgBox err, mModuleName, METHOD_NAME
+  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
   Resume Exit_Proc
 End Function

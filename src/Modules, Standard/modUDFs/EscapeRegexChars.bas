@@ -1,12 +1,12 @@
 '------------------------------------------------------------------------------'
-' Purpose:  Escapes characters that have special meanings in RegEx in the
+' Summary: Escapes characters that have special meanings in RegEx in the
 '   specified string.
 ' Parameter(s):
 '   pString - The string to modify.
 ' Returns: The input string modified so that characters that have special
 '   meanings in RegEx are escaped.
 ' Date Created: 2026-06-15
-' Date Last Modified: 2026-06-15
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function EscapeRegexChars(ByVal pString As String) As String
   On Error GoTo Err_Proc

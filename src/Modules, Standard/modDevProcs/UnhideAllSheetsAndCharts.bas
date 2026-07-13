@@ -1,11 +1,11 @@
 '------------------------------------------------------------------------------'
-' Purpose:  Unhides all Worksheets and ChartSheets in this Workbook.
+' Summary: Unhides all Worksheets and Chartsheets in this Workbook.
 ' Date Created: 2017-03-24
-' Date Last Modified: 2026-05-09
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Sub UnhideAllSheetsAndCharts()
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "UnhideAllSheetsAndCharts"
+  Const methodName As String = "UnhideAllSheetsAndCharts"
   
   Dim cht As Chart
   Dim wb As Workbook
@@ -23,6 +23,6 @@ Public Sub UnhideAllSheetsAndCharts()
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
+  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
   Resume Exit_Proc
 End Sub

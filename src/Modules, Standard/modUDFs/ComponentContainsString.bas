@@ -1,5 +1,5 @@
 '------------------------------------------------------------------------------'
-' Purpose:  Determines if the specified VBA component contains the specified
+' Summary: Determines if the specified VBA component contains the specified
 '   string.
 ' Parameter(s):
 '   searchIn - The VBA component (Modules, Sheets, Forms, Classes) to search
@@ -16,7 +16,7 @@
 ' Returns: True if the specified VBA component contains the specified
 '   string; otherwise False.
 ' Date Created: 2026-06-16
-' Date Last Modified: 2026-06-16
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Public Function ComponentContainsString( _
   searchIn As VBComponent, _

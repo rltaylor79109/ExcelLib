@@ -12,7 +12,7 @@
 '     the user when complete. It is an optional parameter with a default value
 '     of False.
 ' Date Created: 2025-10-19
-' Date Last Modified: 2026-07-10
+' Date Last Modified: 2026-07-13
 '------------------------------------------------------------------------------'
 Public Sub UpsertDefNamesWsRefRpt( _
   Optional fastMode As Boolean = False, _
@@ -48,11 +48,11 @@ Public Sub UpsertDefNamesWsRefRpt( _
   Const REPORT_WORKSHEET_CODENAME As String = "SheetDefNamesWsRefsRpt"
   Const REPORT_WORKSHEET_NAME As String = "Def Names Ws Refs Rpt"
   Const TABLE_FIRST_ROW = 3
-  Const TABLE_NAME As String = "tbl_Def_Names_Ws_Refs_Rpt"
+  Const TABLE_NAME As String = "tbl_DefNamesWsRefsRpt"
   Const REPORT_WORKSHEET_TITLE = "Defined Names, Worksheet References"
   
   Dim aCell As Range
-  Dim wbDefName As Name
+  Dim defName As Name
 
   Dim creatingNewWs As Boolean
   Dim errorOccurred As Boolean
@@ -170,7 +170,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
   rowNum = TABLE_FIRST_ROW + 1
   
   ' Loop through all defined names
-  For Each wbDefName In wb.Names
+  For Each defName In wb.Names
     ' Limit to 5 names to speed up testing.
     #If DEBUG_MODE Then
       If rowNum > TABLE_FIRST_ROW + 5 Then Exit For
@@ -179,11 +179,11 @@ Public Sub UpsertDefNamesWsRefRpt( _
 ' Uncomment this block to processing names that are defined at both
 ' the Workbook and Worksheet level.
     ' If this a Worksheet scoped Name?
-'    If Not (wbDefName.Parent Is wb) Then
+'    If Not (defName.Parent Is wb) Then
 '      ' Does the same name exist as the Workbook scoped level.
 '      ' If it does, skip the Worksheet scoped level.
 '      On Error Resume Next
-'      Set testName = wb.Names(wbDefName.Name)
+'      Set testName = wb.Names(defName.Name)
 '      err.Clear
 '      On Error GoTo Err_Proc
 '      If Not testName Is Nothing Then
@@ -192,20 +192,20 @@ Public Sub UpsertDefNamesWsRefRpt( _
 '    End If
     
     ' Defined name.
-    rptWs.cells(rowNum, COL_NUM_NAME).value = "'" & wbDefName.Name
+    rptWs.cells(rowNum, COL_NUM_NAME).value = "'" & defName.Name
          
     ' Use RefersTo, the defined name definition.
-    rptWs.cells(rowNum, COL_NUM_REFERS_TO).value = "'" & wbDefName.RefersTo
+    rptWs.cells(rowNum, COL_NUM_REFERS_TO).value = "'" & defName.RefersTo
 
     ' Scope
-    If wbDefName.Parent Is wb Then
+    If defName.Parent Is wb Then
       rptWs.cells(rowNum, COL_NUM_SCOPE).value = "'Workbook"
     Else
-      rptWs.cells(rowNum, COL_NUM_SCOPE).value = "'" & wbDefName.Parent.Name
+      rptWs.cells(rowNum, COL_NUM_SCOPE).value = "'" & defName.Parent.Name
     End If
       
     ' Value
-    nameValue = Application.Evaluate(wbDefName.RefersTo)
+    nameValue = Application.Evaluate(defName.RefersTo)
     If IsError(nameValue) Then
         rptWs.cells(rowNum, COL_NUM_VALUE).value = "'Error or Invalid"
     ElseIf IsArray(nameValue) Then
@@ -248,10 +248,10 @@ Public Sub UpsertDefNamesWsRefRpt( _
     End If
     
     ' Visible
-    rptWs.cells(rowNum, COL_NUM_VISIBLE) = wbDefName.Visible
+    rptWs.cells(rowNum, COL_NUM_VISIBLE) = defName.Visible
     
     ' Comment
-    rptWs.cells(rowNum, COL_NUM_COMMENT) = "'" & wbDefName.Comment
+    rptWs.cells(rowNum, COL_NUM_COMMENT) = "'" & defName.Comment
     
     If fastMode Then GoTo Skip_Reference_Search
     
@@ -263,23 +263,20 @@ Public Sub UpsertDefNamesWsRefRpt( _
     
     ' Non-visible defined names are used by Excel for backward compatibilty.
     ' The do not have Worksheet cells do not reference them directly.
-    If Not wbDefName.Visible Then GoTo Continue_WbDefName
+    If Not defName.Visible Then GoTo Continue_WbDefName
     
     For Each ws In wb.Worksheets
+      ' Searching any of the reference report worksheets might result in
+      ' duplicates.
+      If IsWsRefRpt(ws.codeName) Then GoTo Continue_ws
+      
       wsContainsRefs = False
       firstRef = True
-      If _
-        (ws.codeName = "SheetDefNamesWsRefsRpt") _
-        Or (ws.codeName = "SheetDefNamesAllRefs") _
-        Or (ws.codeName = "SheetDvAllRpt") _
-        Or (ws.codeName = "SheetDvByForumlaRpt") Then
-        GoTo Continue_Ws
-      End If
-      
+            
       For Each aCell In ws.UsedRange
         If Not aCell.HasFormula Then GoTo Continue_aCell
         
-        inStrResult = InStr(1, aCell.formula, wbDefName.Name, vbTextCompare)
+        inStrResult = InStr(1, aCell.formula, defName.Name, vbTextCompare)
         
         If inStrResult = 0 Then GoTo Continue_aCell
         
@@ -306,7 +303,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
 Continue_aCell:
       Next aCell
       
-Continue_Ws:
+Continue_ws:
     Next ws
     
     If refCountLimitReached Then
@@ -327,7 +324,7 @@ Skip_Reference_Search:
     rowNum = rowNum + 1
 
 Continue_WbDefName:
-  Next wbDefName
+  Next defName
   
   ' Convert Data Range into an Excel Table (ListObject)
   ' If no names were found, the table's first row will be empty

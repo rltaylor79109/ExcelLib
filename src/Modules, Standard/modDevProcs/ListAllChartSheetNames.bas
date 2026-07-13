@@ -1,12 +1,12 @@
 '------------------------------------------------------------------------------'
-' Purpose:  Prints a list of the names of all the chart sheets in this
+' Summary: Prints a list of the names of all the chart sheets in this
 '   workbook to debug output.
 ' Date Created: 2026-05-17
-' Date Last Modified: 2026-06-09
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 Sub ListAllChartSheetNames()
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "ListAllChartSheetNames"
+  Const methodName As String = "ListAllChartSheetNames"
 
   Dim chtTitle As String
   Dim cs As Chart
@@ -22,7 +22,7 @@ Sub ListAllChartSheetNames()
       Else
         chtTitle = "[No Title]"
       End If
-      Debug.Print cs.name & ", " & chtTitle
+      Debug.Print cs.Name & ", " & chtTitle
   Next cs
   
   If csCount = 0 Then
@@ -32,6 +32,6 @@ Sub ListAllChartSheetNames()
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
+  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
   Resume Exit_Proc
 End Sub

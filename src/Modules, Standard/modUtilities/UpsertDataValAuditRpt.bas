@@ -8,7 +8,7 @@
 '     the user when complete. It is an optional parameter with a default value
 '     of False.
 ' Date Created: 2026-04-06
-' Date Last Modified: 2026-06-29
+' Date Last Modified: 2026-07-13
 '------------------------------------------------------------------------------'
 Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
   On Error GoTo Err_Proc
@@ -36,7 +36,7 @@ Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
   
   Dim creatingNewWs As Boolean
   Dim errorOccurred As Boolean
-  Dim ps As ProtectionState
+  Dim ps As clsProtectionState
   Dim rowCount As Long
   Dim rptTable As ListObject
   Dim rptWs As Worksheet
@@ -63,20 +63,20 @@ Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
   creatingNewWs = (rptWs Is Nothing)
   
   If creatingNewWs Then
-    Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.Count - 1))
+    Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
     ThisWorkbook.VBProject.VBComponents(rptWs.codeName).Name = _
       REPORT_WORKSHEET_CODENAME
     
     With rptWs
       .Name = REPORT_WORKSHEET_NAME
       
-      With .Cells.Font
+      With .cells.Font
         .Name = "Aptos Narrow"
         .Size = 10
       End With
       
-      With .Cells(1, 1)
-        .Value = REPORT_WORKSHEET_TITLE
+      With .cells(1, 1)
+        .value = REPORT_WORKSHEET_TITLE
         With .Font
           .Name = "Aptos Display"
           .Size = 12
@@ -100,7 +100,7 @@ Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
       .Placement = xlFreeFloating
     End With
   Else
-    Set ps = ProtectionStateStatic.Create(rptWs)
+    Set ps = clsProtectionStateStatic.Create(rptWs)
     rptWs.Unprotect
     ' Clear existing ListObject if it exists to avoid conflicts
     On Error Resume Next
@@ -110,57 +110,59 @@ Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
   End If
     
   ' Headers\
-  rptWs.Cells(TABLE_FIRST_ROW, COL_INDEX_FORMULA_SOURCE).Value = _
+  rptWs.cells(TABLE_FIRST_ROW, COL_INDEX_FORMULA_SOURCE).value = _
     COL_NAME_FORMULA_SOURCE
-  rptWs.Cells(TABLE_FIRST_ROW, COL_INDEX_SHEET_INDEX).Value = _
+  rptWs.cells(TABLE_FIRST_ROW, COL_INDEX_SHEET_INDEX).value = _
     COL_NAME_SHEET_NAME
-  rptWs.Cells(TABLE_FIRST_ROW, COL_INDEX_CELL_ADDRESS).Value = _
+  rptWs.cells(TABLE_FIRST_ROW, COL_INDEX_CELL_ADDRESS).value = _
     COL_NAME_CELL_ADDRESS
-  rptWs.Cells(TABLE_FIRST_ROW, COL_INDEX_VALIDATION_TYPE).Value = _
+  rptWs.cells(TABLE_FIRST_ROW, COL_INDEX_VALIDATION_TYPE).value = _
     COL_NAME_VALIDATION_TYPE
   rptWs.Range( _
-    rptWs.Cells(TABLE_FIRST_ROW, 1), _
-    rptWs.Cells(TABLE_FIRST_ROW, COL_COUNT) _
+    rptWs.cells(TABLE_FIRST_ROW, 1), _
+    rptWs.cells(TABLE_FIRST_ROW, COL_COUNT) _
     ).Font.Bold = True
   rowCount = TABLE_FIRST_ROW + 1
 
   ' Loop through all sheets to find Validation
   For Each ws In ThisWorkbook.Worksheets
-    If ws.codeName <> REPORT_WORKSHEET_CODENAME Then
-      Set validationRange = Nothing
-      ' SpecialCells will error if NO cells have validation, so we keep this one
-      On Error Resume Next
-      Set validationRange = ws.Cells.SpecialCells(xlCellTypeAllValidation)
-      err.Clear
-      On Error GoTo Err_Proc
-      
-      If Not validationRange Is Nothing Then
-        For Each targetCell In validationRange.Cells
-          vType = XLDVTYPE_UNDEFINED
-          On Error Resume Next
-          vType = targetCell.Validation.Type
-          err.Clear
-          On Error GoTo Err_Proc
-          
-          'xlValidateList = 3, xlValidateCustom = 7;
-          If vType = xlValidateList Or vType = xlValidateCustom Then
-            rptWs.Cells(rowCount, 1).Value = "'" & targetCell.Validation.Formula1
-            rptWs.Cells(rowCount, 2).Value = "'" & ws.Name
-            rptWs.Cells(rowCount, 3).Value = "'" & targetCell.Address
-            rptWs.Cells(rowCount, 4).Value = "'" & "List"
-            ' Prepend ' to ensure formulas are treated as text
-            rowCount = rowCount + 1
-          End If
-        Next targetCell
-      End If
+    ' Exclude the reference report worksheets to avoid duplications.
+    If IsWsRefRpt(ws.codeName) Then GoTo Continue_ws
+    
+    Set validationRange = Nothing
+    ' SpecialCells will error if NO cells have validation, so we keep this one
+    On Error Resume Next
+    Set validationRange = ws.cells.SpecialCells(xlCellTypeAllValidation)
+    err.Clear
+    On Error GoTo Err_Proc
+    
+    If Not validationRange Is Nothing Then
+      For Each targetCell In validationRange.cells
+        vType = XLDVTYPE_UNDEFINED
+        On Error Resume Next
+        vType = targetCell.Validation.Type
+        err.Clear
+        On Error GoTo Err_Proc
+        
+        'xlValidateList = 3, xlValidateCustom = 7;
+        If vType = xlValidateList Or vType = xlValidateCustom Then
+          rptWs.cells(rowCount, 1).value = "'" & targetCell.Validation.Formula1
+          rptWs.cells(rowCount, 2).value = "'" & ws.Name
+          rptWs.cells(rowCount, 3).value = "'" & targetCell.Address
+          rptWs.cells(rowCount, 4).value = "'" & "List"
+          ' Prepend ' to ensure formulas are treated as text
+          rowCount = rowCount + 1
+        End If
+      Next targetCell
     End If
+Continue_ws:
   Next ws
   
   ' Convert Data Range into an Excel Table (ListObject)
   If rowCount > TABLE_FIRST_ROW + 2 Then
     Set tblRange = rptWs.Range( _
-      rptWs.Cells(TABLE_FIRST_ROW, 1), _
-      rptWs.Cells(rowCount - 1, COL_COUNT))
+      rptWs.cells(TABLE_FIRST_ROW, 1), _
+      rptWs.cells(rowCount - 1, COL_COUNT))
     Set rptTable = rptWs.ListObjects.Add( _
       SourceType:=xlSrcRange, _
       Source:=tblRange, _
@@ -179,9 +181,9 @@ Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
       
         With .SortFields
           .Clear
-          .Add2 Key:=rptTable.ListColumns(COL_NAME_FORMULA_SOURCE).Range
-          .Add2 Key:=rptTable.ListColumns(COL_NAME_SHEET_NAME).Range
-          .Add2 Key:=rptTable.ListColumns(COL_NAME_CELL_ADDRESS).Range
+          .Add2 key:=rptTable.ListColumns(COL_NAME_FORMULA_SOURCE).Range
+          .Add2 key:=rptTable.ListColumns(COL_NAME_SHEET_NAME).Range
+          .Add2 key:=rptTable.ListColumns(COL_NAME_CELL_ADDRESS).Range
         End With ' .SortFields
         
         .Header = xlYes

@@ -10,7 +10,7 @@
 '     are updated with can be very slow. It is an optional parameter with
 '     a default value of False.
 ' Date Created: 2026-06-14
-' Date Last Modified: 2026-07-10
+' Date Last Modified: 2026-07-13
 '------------------------------------------------------------------------------'
 Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   On Error GoTo Err_Proc
@@ -20,7 +20,7 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   Const BUTTON_UPDATE_SLOW_NAME As String = "btnUpsrtDfNmsAllRfsRptSlow"
 
   Const DEF_NAME_PRINT_TITLES As String = "Print_Titles"
-  Const DEST_TABLE_NAME As String = "tbl_Def_Names_All_Refs_Rpt"
+  Const DEST_TABLE_NAME As String = "tbl_DefNamesAllRefsRpt"
   Const DEST_TABLE_HEADER_ROW As Long = 5
   Const DEST_TABLE_COL_COUNT = 10
   Const DEST_COL_NAME_HEADER As String = "Name"
@@ -52,19 +52,19 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   Const WS_REF_RPT_COL_HEADER_REFERENCES As String = "References"
   Const WS_REF_RPT_COL_HEADER_REFERS_TO As String = "Refers_To"
   Const WS_REF_RPT_COL_HEADER_VISIBLE As String = "Visible"
-  Const WS_REF_RPT_TABLE_NAME As String = "tbl_Def_Names_Ws_Refs_Rpt"
+  Const WS_REF_RPT_TABLE_NAME As String = "tbl_DefNamesWsRefsRpt"
   Const TABLE_HEADER_BACKGROUND_COLORINDEX As Long = 8544277
   Const TABLE_HEADER_FOREGROUND_COLORINDEX As Long = 16777215
   Const VAL_RPT_HEADER_F1 = "F1"
   Const VAL_RPT_HEADER_F2 = "F2"
   Const VAL_RPT_HEADER_REF_COUNT = "Ref_Count"
   Const VAL_RPT_HEADER_REFERENCES = "References"
-  Const VAL_RPT_TABLE_NAME As String = "tbl_Dv_F_Rpt"
+  Const VAL_RPT_TABLE_NAME As String = "tbl_DvF_Rpt"
   
   Dim creatingNewDestWs As Boolean
   Dim defName As String
-  Dim defNameDestNdx As Long
-  Dim defNameSrcNdx As Long
+  Dim defNameDestIdx As Long
+  Dim defNameSrcIdx As Long
   Dim destRow As Long
   Dim destTbl As ListObject
   Dim destTblRng As Range
@@ -285,9 +285,9 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
     valRptTbl.ListColumns(VAL_RPT_HEADER_REFERENCES).DataBodyRange
     
   namesCount = 0
-  For defNameDestNdx = 1 To wsRefRptNamesColRng.count
-    defName = wsRefRptNamesColRng(defNameDestNdx)
-    If wsRefRptVisibleColRng(defNameDestNdx).value Then
+  For defNameDestIdx = 1 To wsRefRptNamesColRng.count
+    defName = wsRefRptNamesColRng(defNameDestIdx)
+    If wsRefRptVisibleColRng(defNameDestIdx).value Then
       refCountAllNotZero = False
       namesCount = namesCount + 1
       destRow = DEST_TABLE_HEADER_ROW + namesCount
@@ -304,20 +304,20 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
       End If
       
       destWs.cells(destRow, DEST_COL_RWs_COUNT).value = _
-        "'" & wsRefRptRefCntColRng(defNameDestNdx)
-      refCountAllNotZero = refCountAllNotZero Or (wsRefRptRefCntColRng(defNameDestNdx) <> 0)
+        "'" & wsRefRptRefCntColRng(defNameDestIdx)
+      refCountAllNotZero = refCountAllNotZero Or (wsRefRptRefCntColRng(defNameDestIdx) <> 0)
       
       destWs.cells(destRow, DEST_COL_RWs_NAMES).value = _
-        "'" & wsRefRptReferencesColRng(defNameDestNdx)
+        "'" & wsRefRptReferencesColRng(defNameDestIdx)
       
       ' Get the formulas that reference the defined name.
       refCount = 0
       refList = ""
       refCountLimitReached = False
-      For defNameSrcNdx = 1 To wsRefRptNamesColRng.count
-        If defNameSrcNdx <> defNameDestNdx Then
+      For defNameSrcIdx = 1 To wsRefRptNamesColRng.count
+        If defNameSrcIdx <> defNameDestIdx Then
           If ContainsString( _
-            searchIn:=wsRefRptRefersToColRng(defNameSrcNdx), _
+            searchIn:=wsRefRptRefersToColRng(defNameSrcIdx), _
             searchFor:=defName, _
             wholeWordOnly:=True, _
             matchCase:=False _
@@ -335,11 +335,11 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
               refList = refList & ", "
             End If
             
-            refList = refList & "{" & wsRefRptRefersToColRng(defNameSrcNdx) & "}"
+            refList = refList & "{" & wsRefRptRefersToColRng(defNameSrcIdx) & "}"
 
           End If
         End If
-      Next defNameSrcNdx
+      Next defNameSrcIdx
       refCountAllNotZero = refCountAllNotZero Or (refCount > 0)
       refCountStr = _
         "'" & _
@@ -353,24 +353,24 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
       valTblRowCount = valRptTbl.DataBodyRange.Rows.count
       refCount = 0
       Set refListCollection = New Collection
-      For defNameSrcNdx = 1 To valTblRowCount
+      For defNameSrcIdx = 1 To valTblRowCount
         isInF1 = ContainsString( _
-          searchIn:=valRptColF1Rng(defNameSrcNdx), _
+          searchIn:=valRptColF1Rng(defNameSrcIdx), _
           searchFor:=defName, _
           wholeWordOnly:=True, _
           matchCase:=False _
           )
         isInF2 = ContainsString( _
-          searchIn:=valRptColF2Rng(defNameSrcNdx), _
+          searchIn:=valRptColF2Rng(defNameSrcIdx), _
           searchFor:=defName, _
           wholeWordOnly:=True, _
           matchCase:=False _
           )
         If isInF1 Or isInF2 Then
-          refCount = refCount + valRptColRefCountRng(defNameSrcNdx)
-          refListCollection.Add valRptColReferencesRng(defNameSrcNdx)
+          refCount = refCount + valRptColRefCountRng(defNameSrcIdx)
+          refListCollection.Add valRptColReferencesRng(defNameSrcIdx)
         End If
-      Next defNameSrcNdx
+      Next defNameSrcIdx
       refCountAllNotZero = refCountAllNotZero Or (refCount > 0)
       destWs.cells(destRow, DEST_COL_RDV_COUNT).value = refCount
       Dim refListStr As String
@@ -425,7 +425,7 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
 Skip_For_Print_Title:
       destWs.cells(destRow, DEST_COL_ANY_REFS).value = refCountAllNotZero
     End If
-  Next defNameDestNdx
+  Next defNameDestIdx
 
   ' Convert the data range into an Excel Table (ListObject)
   If namesCount = 0 Then
@@ -474,7 +474,7 @@ Exit_Proc:
   ElseIf wsRefRptMustBeUpdated Then
     Dim mbTitle
     mbTitle = _
-      "The Defined Names WORKSHEET Reference Report " & vbCrLf & _
+      "The Defined Names Worksheet Reference Report " & vbCrLf & _
       "must be created/updated." & vbCrLf & vbCrLf & _
       "You must run a Complete Update to update that report " & vbCrLf & _
       "so that the Defined Names ALL References Report can be updated."

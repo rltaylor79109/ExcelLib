@@ -4,11 +4,11 @@
 ' Remarks: It is a wrapper that allows this method to be assigned as the macro
 '   for a button on a worksheet.
 ' Date Created: 2026-07-07
-' Date Last Modified: 2026-07-07
+' Date Last Modified: 2026-07-13
 '------------------------------------------------------------------------------'
-Public Sub RunUpsertDvAllRpt()
+Public Sub RunUpsertDvAllRptVrbse()
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "UpsertDvAllRpt"
+  Const METHOD_NAME As String = "RunUpsertDvAllRptVrbse"
 
   UpsertDvAllRpt silent:=False
   

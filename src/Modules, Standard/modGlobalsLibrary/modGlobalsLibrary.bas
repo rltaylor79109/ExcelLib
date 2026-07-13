@@ -1,11 +1,11 @@
 Option Explicit
 
 '------------------------------------------------------------------------------'
-' Module Name: modGlobals
+' Module Name: modGlobalsLibrary
 ' Summary: Declares a library global constants and variables for use with any
 '   workbook.
 ' Date Created: 2026-06-11
-' Date Last Modified: 2026-06-11
+' Date Last Modified: 2026-07-12
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -21,11 +21,13 @@ Option Explicit
 '------------------------------------------------------------------------------'
 
 ' The name of this module.
-Private Const MODULE_NAME As String = "modGlobals"
+Private Const MODULE_NAME As String = "modGlobalsLibrary"
 
 '------------------------------------------------------------------------------'
 ' Public Constant Fields
 '------------------------------------------------------------------------------'
+' Number of days in a week.
+Public Const DAYS_PER_WEEK As Long = 7
 
 '------------------------------------------------------------------------------'
 ' Error Codes
@@ -35,3 +37,17 @@ Private Const MODULE_NAME As String = "modGlobals"
 ' VBA Defined Error Codes
 '------------------------------------------------------------------------------'
 Public Const VBA_ERR_INVALID_PROCEDURE_CALL_OR_ARGUMENT As Long = 5
+
+'------------------------------------------------------------------------------'
+' Enumerations
+'------------------------------------------------------------------------------'
+
+' Represents a data validaton source type.
+Public Enum ValidationSrcType
+  vstUndefined = 0
+  vstNoValidation = 1
+  vstHardCodedValue = 2
+  vstCellRef = 3
+  vstDefinedName = 4
+  vstFunction = 5
+End Enum
