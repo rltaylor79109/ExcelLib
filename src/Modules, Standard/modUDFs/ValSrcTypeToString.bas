@@ -10,7 +10,7 @@
 '------------------------------------------------------------------------------'
 Public Function ValSrcTypeToString(vst As ValidationSrcType) As String
   On Error GoTo Err_Proc
-  Const methodName As String = "ValSrcTypeToString"
+  Const METHOD_NAME As String = "ValSrcTypeToString"
   
   Select Case vst
     Case vstNoValidation
@@ -30,6 +30,6 @@ Public Function ValSrcTypeToString(vst As ValidationSrcType) As String
 Exit_Proc:
   Exit Function
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
+  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Function

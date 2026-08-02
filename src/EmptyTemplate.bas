@@ -59,12 +59,12 @@ End Property
 '------------------------------------------------------------------------------'
 Public Sub PublicTemplate(paramName As String)
   On Error GoTo Err_Proc
-  Const methodName As String = "PublicTemplate"
+  Const METHOD_NAME As String = "PublicTemplate"
 
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, mModuleName, methodName
+  ShowMethodErrorMsgBox err, mModuleName, METHOD_NAME
   Resume Exit_Proc
 End Sub
 
@@ -89,21 +89,21 @@ End Sub
 '   err - The object that contains the error information.
 '   moduleName - The name of the module that contains the method that produced
 '     the error.
-'   methodName - The name of the method that produced the error.
+'   METHOD_NAME - The name of the method that produced the error.
 ' Date Created: 2026-04-19
 ' Date Last Modified: 2026-04-19
 '------------------------------------------------------------------------------'
 Public Sub ShowMethodErrorMsgBox( _
   err As ErrObject, _
   moduleName As String, _
-  methodName As String)
+  METHOD_NAME As String)
 
   Dim prompt As String
   Dim title As String
   
-  prompt = "Source: Method " & moduleName & "." & methodName & vbCrLf & _
+  prompt = "Source: Method " & moduleName & "." & METHOD_NAME & vbCrLf & _
     "Error " & err.Number & ": " & err.Description
-  title = moduleName & "." & methodName
+  title = moduleName & "." & METHOD_NAME
   MsgBox prompt, vbExclamation, title
 End Sub
 
@@ -125,7 +125,7 @@ Public Sub ShowPropertyErrorMsgBox( _
   callType As VbCallType)
   
   On Error GoTo Err_Proc
-  Const methodName As String = "ShowPropertyErrorMsgBox"
+  Const METHOD_NAME As String = "ShowPropertyErrorMsgBox"
   
   Dim callTypeString As String
   Dim prompt As String
@@ -151,7 +151,7 @@ Public Sub ShowPropertyErrorMsgBox( _
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, mModuleName, methodName
+  ShowMethodErrorMsgBox err, mModuleName, METHOD_NAME
   Resume Exit_Proc
 End Sub
 
@@ -168,11 +168,11 @@ End Sub
 '------------------------------------------------------------------------------'
 Private Sub PrivateTemplate(paramName As String)
   On Error GoTo Err_Proc
-  Const methodName As String = "PrivateTemplate"
+  Const METHOD_NAME As String = "PrivateTemplate"
 
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, mModuleName, methodName
+  ShowMethodErrorMsgBox err, mModuleName, METHOD_NAME
   Resume Exit_Proc
 End Sub

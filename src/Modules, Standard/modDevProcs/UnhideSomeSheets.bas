@@ -5,7 +5,7 @@
 '------------------------------------------------------------------------------'
 Public Sub UnhideSomeSheets()
   On Error GoTo Err_Proc
-  Const methodName As String = "UnhideSomeSheets"
+  Const METHOD_NAME As String = "UnhideSomeSheets"
   
   Dim buttons As VbMsgBoxStyle
   Dim prompt As String
@@ -33,5 +33,5 @@ Public Sub UnhideSomeSheets()
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
+  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Ex

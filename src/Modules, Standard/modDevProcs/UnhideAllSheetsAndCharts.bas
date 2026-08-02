@@ -5,7 +5,7 @@
 '------------------------------------------------------------------------------'
 Public Sub UnhideAllSheetsAndCharts()
   On Error GoTo Err_Proc
-  Const methodName As String = "UnhideAllSheetsAndCharts"
+  Const METHOD_NAME As String = "UnhideAllSheetsAndCharts"
   
   Dim cht As Chart
   Dim wb As Workbook
@@ -23,6 +23,6 @@ Public Sub UnhideAllSheetsAndCharts()
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
+  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Sub

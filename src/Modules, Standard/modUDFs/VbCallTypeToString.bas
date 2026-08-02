@@ -10,7 +10,7 @@
 '------------------------------------------------------------------------------'
 Public Function VbCallTypeToString(pCallType As VbCallType) As String
   On Error GoTo Err_Proc
-  Const methodName As String = "VbCallTypeToString"
+  Const METHOD_NAME As String = "VbCallTypeToString"
   
   Select Case pCallType
     Case VbGet
@@ -28,6 +28,6 @@ Public Function VbCallTypeToString(pCallType As VbCallType) As String
 Exit_Proc:
   Exit Function
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
+  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Function

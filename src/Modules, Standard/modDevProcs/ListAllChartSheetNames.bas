@@ -6,7 +6,7 @@
 '------------------------------------------------------------------------------'
 Sub ListAllChartSheetNames()
   On Error GoTo Err_Proc
-  Const methodName As String = "ListAllChartSheetNames"
+  Const METHOD_NAME As String = "ListAllChartSheetNames"
 
   Dim chtTitle As String
   Dim cs As Chart
@@ -32,6 +32,6 @@ Sub ListAllChartSheetNames()
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
+  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Sub

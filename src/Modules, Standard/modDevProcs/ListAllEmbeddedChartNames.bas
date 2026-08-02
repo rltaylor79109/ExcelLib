@@ -6,7 +6,7 @@
 '------------------------------------------------------------------------------'
 Sub ListAllEmbeddedChartNames()
   On Error GoTo Err_Proc
-  Const methodName As String = "ListAllEmbeddedChartNames"
+  Const METHOD_NAME As String = "ListAllEmbeddedChartNames"
 
   Dim chtObj As ChartObject
   Dim chtTitle As String
@@ -38,6 +38,6 @@ Sub ListAllEmbeddedChartNames()
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, methodName
+  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Sub

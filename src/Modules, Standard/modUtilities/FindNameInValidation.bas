@@ -7,7 +7,7 @@
 '------------------------------------------------------------------------------'
 Public Sub FindNameInValidation(searchName As String)
   On Error GoTo Err_Proc
-  Const methodName As String = "FindNameInValidation"
+  Const METHOD_NAME As String = "FindNameInValidation"
   
   Dim wrksht As Worksheet
   Dim theCell As Range
@@ -24,6 +24,6 @@ Public Sub FindNameInValidation(searchName As String)
 Exit_Proc:
   Exit Sub
 Err_Proc:
-  ShowMethodErrorMsgBox err, mModuleName, methodName
+  ShowMethodErrorMsgBox err, mModuleName, METHOD_NAME
   Resume Exit_Proc
 End Sub
