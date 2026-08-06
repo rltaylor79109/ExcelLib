@@ -1,0 +1,26 @@
+=LAMBDA(
+  pRefCell,
+  pColRng,
+  pTbl_HeaderCell,
+  pRowOffset,
+  LET(
+    _comment,
+    N(
+      "function name: fn_GET_TABLE_CELL_ROW_RELATIVE"
+    ),
+    _array,
+    pColRng,
+    _rowNum,
+    Row(
+      pRefCell
+    ) - ROW(
+      pTbl_HeaderCell
+    ) + pRowOffset,
+    _result,
+    INDEX(
+      _array,
+      _rowNum
+    ),
+    _result
+  )
+)

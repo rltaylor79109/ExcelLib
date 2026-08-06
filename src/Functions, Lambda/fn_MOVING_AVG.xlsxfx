@@ -5,7 +5,7 @@
   LET(
     _comment,
     N(
-      "function name: fn_MOVING_AVG"
+      "NEEDS REVISION, function name: fn_MOVING_AVG"
     ),
     _dataNAsRemoved,
     FILTER(

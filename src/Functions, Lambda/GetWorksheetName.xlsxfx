@@ -3,7 +3,7 @@
   LET(
     _comment,
     N(
-      "function name: GetWorksheetName"
+      "NEEDS REVISION, function name: GetWorksheetName"
     ),
     _pathPlusSheetName,
     CELL(

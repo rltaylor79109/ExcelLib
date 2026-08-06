@@ -4,7 +4,7 @@
   LET(
     _comment,
     N(
-      "function name: fn_GET_WT_FROM_HT_BMI"
+      "NEEDS REVISION, function name: fn_GET_WT_FROM_HT_BMI"
     ),
     _result,
     pBMI * pHeightInches ^ 2 * 0.0254 ^ 2 / 0.4536,

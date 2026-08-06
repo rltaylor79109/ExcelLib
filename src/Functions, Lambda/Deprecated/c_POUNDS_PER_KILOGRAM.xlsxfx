@@ -2,7 +2,7 @@
   LET(
     _comment,
     N(
-      "function name: c_POUNDS_PER_KILOGRAM"
+      "NEEDS REVISION, function name: c_POUNDS_PER_KILOGRAM"
     ),
     _result,
     2.20462,
