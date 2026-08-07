@@ -8,8 +8,8 @@
     TRANSPOSE(
       TOCOL(
         {
-          True,
-          False
+          TRUE,
+          FALSE
         }
       )
     ),
