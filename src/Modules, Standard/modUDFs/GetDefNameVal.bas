@@ -7,11 +7,11 @@
 '   pDefNameStrStr - A string that represents the the defined name.
 ' Return(s): The worksheet object with the specifed CodeName property.
 ' Date Created: 2026-07-22
-' Date Last Modified: 2026-07-22
+' Date Last Modified: 2026-08-10
 '------------------------------------------------------------------------------'
 Public Function GetDefNameVal(ByVal pDefNameStr As String) As Variant
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "GetDefinedNameValue"
+  Const METHOD_NAME As String = "GetDefNameVal"
     
   Dim nm As Name
   Dim targetRng As Range
