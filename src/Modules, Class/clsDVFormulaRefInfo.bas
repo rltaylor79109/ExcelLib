@@ -318,6 +318,10 @@ Friend Function GetRefString( _
     firstAddress = True
     Set cellAddressCollection = m_RefDict(worksheetKey)
     For Each cellAddress In cellAddressCollection
+      If cellAddress = "$C$79" Then
+        Dim x
+        x = 2
+      End If
       If refLimit = 0 Or refCount < refLimit Then
         ' If we are on the first address, add the worksheet name.
         If firstAddress Then
@@ -325,7 +329,6 @@ Friend Function GetRefString( _
           ' the worksheet separator, ";"
           If Not firstWorksheet Then
             refString = refString & ";"
-            firstWorksheet = False
           End If
           ' Then 2) add the worksheet name.
           refString = refString & "'" & worksheetKey & "'!"
@@ -342,6 +345,7 @@ Friend Function GetRefString( _
         GoTo After_Ref_Limit_Exceeded
       End If
     Next cellAddress
+    firstWorksheet = False
   Next worksheetKey
   
 After_Ref_Limit_Exceeded:

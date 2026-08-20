@@ -4,7 +4,7 @@ Option Explicit
 ' Class Module Name: clsProtectionState
 ' Summary: Contains a worksheet's protection information.
 ' Date Created: 2026-05-23
-' Date Last Modified: 2026-07-01
+' Date Last Modified: 2026-08-16
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -22,10 +22,12 @@ Private Const MODULE_NAME As String = "clsProtectionState"
 ' Variable Fields
 '------------------------------------------------------------------------------'
 
+Private m_ws As Worksheet
 Private m_IsProtected As Boolean
-Private m_ProtectContents As Boolean
-Private m_ProtectDrawingObjects As Boolean
-Private m_ProtectScenarios As Boolean
+Private m_Password As String
+
+' Protection settings state variables
+
 Private m_AllowFormattingCells As Boolean
 Private m_AllowFormattingColumns As Boolean
 Private m_AllowFormattingRows As Boolean
@@ -37,6 +39,9 @@ Private m_AllowDeletingRows As Boolean
 Private m_AllowSorting As Boolean
 Private m_AllowFiltering As Boolean
 Private m_AllowUsingPivotTables As Boolean
+Private m_ProtectContents As Boolean
+Private m_ProtectDrawingObjects As Boolean
+Private m_ProtectScenarios As Boolean
 
 '------------------------------------------------------------------------------'
 ' Pseudo-Constructors
@@ -47,15 +52,22 @@ Private m_AllowUsingPivotTables As Boolean
 '   class with protection state of the specified Worksheet.
 ' Parameter(s)
 '   ws - The Worksheet.
+'   password - The worksheet's password. It is an optional parameter with a
+'     default value of "", the empty string.
 ' Returns: An instance of the clsProtectionState class initalized with the
 '   protection state of the specified Worksheet.
 ' Date Created: 2026-05-23
-' Date Last Modified: 2026-05-25
+' Date Last Modified: 2026-08-16
 '------------------------------------------------------------------------------'
-Friend Sub Init(ByRef ws As Worksheet)
+Friend Sub Init( _
+  ByVal ws As Worksheet, _
+  Optional ByVal Password As String = "")
+  
   On Error GoTo Err_Proc
   Const METHOD_NAME As String = "Init"
 
+  Set m_ws = ws
+  m_Password = Password
   m_IsProtected = ws.ProtectContents
   
   If m_IsProtected Then
@@ -88,46 +100,6 @@ End Sub
 '------------------------------------------------------------------------------'
 ' Properties
 '------------------------------------------------------------------------------'
-
-'------------------------------------------------------------------------------'
-' Summary: Gets the IsProtected property's value.
-' Value: The associated Worksheet's overall protection status.
-' Date Created: 2026-05-03
-' Date Last Modified: 2026-05-23
-'------------------------------------------------------------------------------'
-Friend Property Get IsProtected() As Boolean
-  IsProtected = m_IsProtected
-End Property
-
-'------------------------------------------------------------------------------'
-' Summary: Gets the ProtectContents property's value.
-' Value: The associated Worksheet's ProtectContents property.
-' Date Created: 2026-05-03
-' Date Last Modified: 2026-05-23
-'------------------------------------------------------------------------------'
-Friend Property Get ProtectContents() As Boolean
-  ProtectContents = m_ProtectContents
-End Property
-
-'------------------------------------------------------------------------------'
-' Summary: Gets the ProtectDrawingObjects property's value.
-' Value: The associated Worksheet's ProtectDrawingObjects property.
-' Date Created: 2026-05-03
-' Date Last Modified: 2026-05-23
-'------------------------------------------------------------------------------'
-Friend Property Get ProtectDrawingObjects() As Boolean
-  ProtectDrawingObjects = m_ProtectDrawingObjects
-End Property
-
-'------------------------------------------------------------------------------'
-' Summary: Gets the ProtectScenarios property's value.
-' Value: The associated Worksheet's ProtectScenarios property.
-' Date Created: 2026-05-03
-' Date Last Modified: 2026-05-23
-'------------------------------------------------------------------------------'
-Friend Property Get ProtectScenarios() As Boolean
-  ProtectScenarios = m_ProtectScenarios
-End Property
 
 '------------------------------------------------------------------------------'
 ' Summary: Gets the AllowFormattingCells property's value.
@@ -239,7 +211,66 @@ Friend Property Get AllowUsingPivotTables() As Boolean
   AllowUsingPivotTables = m_AllowUsingPivotTables
 End Property
 
+'------------------------------------------------------------------------------'
+' Summary: Gets the IsProtected property's value.
+' Value: The associated Worksheet's overall protection status.
+' Date Created: 2026-05-03
+' Date Last Modified: 2026-05-23
+'------------------------------------------------------------------------------'
+Friend Property Get IsProtected() As Boolean
+  IsProtected = m_IsProtected
+End Property
 
+'------------------------------------------------------------------------------'
+' Summary: Gets the ProtectContents property's value.
+' Value: The associated Worksheet's ProtectContents property.
+' Date Created: 2026-05-03
+' Date Last Modified: 2026-05-23
+'------------------------------------------------------------------------------'
+Friend Property Get ProtectContents() As Boolean
+  ProtectContents = m_ProtectContents
+End Property
+
+'------------------------------------------------------------------------------'
+' Summary: Gets the ProtectDrawingObjects property's value.
+' Value: The associated Worksheet's ProtectDrawingObjects property.
+' Date Created: 2026-05-03
+' Date Last Modified: 2026-05-23
+'------------------------------------------------------------------------------'
+Friend Property Get ProtectDrawingObjects() As Boolean
+  ProtectDrawingObjects = m_ProtectDrawingObjects
+End Property
+
+'------------------------------------------------------------------------------'
+' Summary: Gets the ProtectScenarios property's value.
+' Value: The associated Worksheet's ProtectScenarios property.
+' Date Created: 2026-05-03
+' Date Last Modified: 2026-05-23
+'------------------------------------------------------------------------------'
+Friend Property Get ProtectScenarios() As Boolean
+  ProtectScenarios = m_ProtectScenarios
+End Property
+
+'------------------------------------------------------------------------------'
+' Summary: Gets the ParentWorksheet property's value.
+' Value: The parent worksheet whose protection state is represented by this
+'   instance of the clsProtectionSate clas.
+' Date Created: 2026-08-16
+' Date Last Modified: 2026-08-16
+'------------------------------------------------------------------------------'
+Friend Property Get ParentWorksheet() As Worksheet
+  ParentWorksheet = m_ws
+End Property
+
+'------------------------------------------------------------------------------'
+' Summary: Gets the Password property's value.
+' Value: The parent worksheet's password.
+' Date Created: 2026-08-16
+' Date Last Modified: 2026-08-16
+'------------------------------------------------------------------------------'
+Friend Property Get Password() As Boolean
+  Password = m_Password
+End Property
 
 '------------------------------------------------------------------------------'
 ' Methods
@@ -258,21 +289,19 @@ End Property
 ' Date Created: 2026-05-23
 ' Date Last Modified: 2026-05-23
 '------------------------------------------------------------------------------'
-Friend Sub RestoreProtection( _
-  ByRef ws As Worksheet, _
-  Optional ByVal Password As String = "")
+Friend Sub Restore(Optional ByVal Password As String = "")
   
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "RestoreProtection"
+  Const METHOD_NAME As String = "Restore"
   
   ' Guard clauses to ensure data objects exist and that the sheet was
   ' originally protected.
-  If ws Is Nothing Then GoTo Exit_Proc
+  If m_ws Is Nothing Then GoTo Exit_Proc
   
   If Not m_IsProtected Then GoTo Exit_Proc
     
   ' Re-apply all original restrictions reading from the class properties
-  ws.Protect Password:=Password, _
+  m_ws.Protect Password:=Password, _
     Contents:=m_ProtectContents, _
     DrawingObjects:=m_ProtectDrawingObjects, _
     Scenarios:=m_ProtectScenarios, _

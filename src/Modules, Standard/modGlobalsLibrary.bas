@@ -5,7 +5,7 @@ Option Explicit
 ' Summary: Declares a library global constants and variables for use with any
 '   workbook.
 ' Date Created: 2026-06-11
-' Date Last Modified: 2026-07-18
+' Date Last Modified: 2026-08-20
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -30,13 +30,33 @@ Private Const MODULE_NAME As String = "modGlobalsLibrary"
 Public Const DAYS_PER_WEEK As Long = 7
 
 '------------------------------------------------------------------------------'
+' Excel Limits and Configuration
+'------------------------------------------------------------------------------'
+
+' Maximum length of a worksheet name. Defined by Excel.
+Public Const WS_NAME_LEN_MAX As Long = 31
+
+' Worksheet name forbidden characters, version for searching.
+Public Const WS_NAME_FORBIDDEN_CHARS As String = "\/~*[]?:"
+
+' Worksheet name forbidden characters, readable version for MsgBox prompts.
+Public Const WS_NAME_FORBIDDEN_CHARS_READABLE_LIST As String = _
+  "\ ~ / * [ ] ? :"
+
+'------------------------------------------------------------------------------'
 ' Error Codes
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
 ' VBA Defined Error Codes
 '------------------------------------------------------------------------------'
+' Error code for the VBA defined "Invalid procedure call or argument" runtime
+' error.
 Public Const VBA_ERR_INVALID_PROCEDURE_CALL_OR_ARGUMENT As Long = 5
+
+' Error code for the VBA "Application-defined or object-defined error"
+' runtime error.
+Public Const VBA_ERR_DEFAULT_RUNTIME_APPLICATON_OBJECT_ERR As Long = 1004
 
 '------------------------------------------------------------------------------'
 ' Enumerations
