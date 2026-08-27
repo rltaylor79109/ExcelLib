@@ -5,7 +5,7 @@ Option Explicit
 ' Summary: Declares a library global constants and variables for use with any
 '   workbook.
 ' Date Created: 2026-06-11
-' Date Last Modified: 2026-08-20
+' Date Last Modified: 2026-08-28
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -28,6 +28,18 @@ Private Const MODULE_NAME As String = "modGlobalsLibrary"
 '------------------------------------------------------------------------------'
 ' Number of days in a week.
 Public Const DAYS_PER_WEEK As Long = 7
+
+' Workbook Audit Report Worksheet CodeNames and Names.
+Public Const WS_DATA_VAL_ALL_RPT_CODENAME = "SheetDvAllRpt"
+Public Const WS_DATA_VAL_ALL_RPT_NAME = "DV All Rpt"
+Public Const WS_DATA_VAL_BY_FORMULA_RPT_CODENAME = "SheetDvByForumlaRpt"
+Public Const WS_DATA_VAL_BY_FORMULA_RPT_NAME = "DV by F Rpt"
+Public Const WS_DEF_NAMES_ALL_RPT_CODENAME = "SheetDefNamesAllRefs"
+Public Const WS_DEF_NAMES_ALL_RPT_NAME = "Def Names All Refs"
+Public Const WS_DEF_NAMES_WS_REF_RPT_CODENAME = "SheetDefNamesWsRefsRpt"
+Public Const WS_DEF_NAMES_WS_REF_RPT_NAME = "Def Names Ws Refs Rpt"
+Public Const WS_TBLS_WS_REF_RPT_CODENAME = "SheetTblsWsRefsRpt"
+Public Const WS_TBLS_WS_REF_RPT_NAME = "Tables Ws Refs Rpt"
 
 '------------------------------------------------------------------------------'
 ' Excel Limits and Configuration

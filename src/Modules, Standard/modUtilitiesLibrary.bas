@@ -4,7 +4,7 @@ Option Explicit
 ' Module Name: modUtilitiesLibrary
 ' Summary: Contains library (not application specific)utility methods.
 ' Date Created: 2026-05-07
-' Date Last Modified: 2026-08-18
+' Date Last Modified: 2026-08-27
 '------------------------------------------------------------------------------'
 '------------------------------------------------------------------------------'
 ' Fields
@@ -253,49 +253,6 @@ Public Sub RunUpsertDvByFormulaVrbse()
   Const METHOD_NAME As String = "RunUpsertDvByFormula"
 
   UpsertDvByFormulaRpt silent:=False
-  
-Exit_Proc:
-  Exit Sub
-Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
-  Resume Exit_Proc
-End Sub
-
-'------------------------------------------------------------------------------'
-' Summary: Runs the UpsertDataValAuditRptVerbose with the silent parameter
-'   set to True. Other than error messages, no user messages are displayed
-'   upon completion of the update.
-' Remarks: It is a wrapper that allows this method to be assigned as the macro
-'   for a button on a worksheet.
-' Date Created: 2026-06-17
-' Date Last Modified: 2026-07-13
-'------------------------------------------------------------------------------'
-Public Sub RunUpsrtDataValRptSilent()
-  On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "RunUpsrtDataValRptSilent"
-
-  UpsertDataValAuditRpt silent:=True
-  
-Exit_Proc:
-  Exit Sub
-Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
-  Resume Exit_Proc
-End Sub
-
-'------------------------------------------------------------------------------'
-' Summary: Runs the UpsertDataValAuditRptVerbose with the silent parameter
-'   set to False. An update complete message is displayed to the user.
-' Remarks: It is a wrapper that allows this method to be assigned as the macro
-'   for a button on a worksheet.
-' Date Created: 2026-06-17
-' Date Last Modified: 2026-07-13
-'------------------------------------------------------------------------------'
-Public Sub RunUpsrtDataValRptVrbse()
-  On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "RunUpsrtDataValRptVrbse"
-
-  UpsertDataValAuditRpt silent:=False
   
 Exit_Proc:
   Exit Sub
@@ -559,225 +516,6 @@ Err_Proc:
 End Sub
 
 '------------------------------------------------------------------------------'
-' Summary: Creates or updates a worksheet that show all the data validation
-'   sources, their types, and the cell that used them, formatted as an Excel
-'   table.
-' Parameter(s)
-'   silent - It True, the method does not display any messages to the user
-'     except for errors; otherwise a report updated message is displayed to
-'     the user when complete. It is an optional parameter with a default value
-'     of False.
-' Date Created: 2026-04-06
-' Date Last Modified: 2026-08-18
-'------------------------------------------------------------------------------'
-Public Sub UpsertDataValAuditRpt(Optional silent As Boolean = False)
-  On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "UpsertDataValAuditRpt"
-
-  Const BUTTON_NAME As String = "btnUpsertDataValAuditRpt"
-  Const COL_INDEX_FORMULA_SOURCE As Long = 1
-  Const COL_INDEX_SHEET_INDEX As Long = 2
-  Const COL_INDEX_CELL_ADDRESS As Long = 3
-  Const COL_INDEX_VALIDATION_TYPE As Long = 4
-  Const COL_NAME_FORMULA_SOURCE As String = "Formula_Source"
-  Const COL_NAME_SHEET_NAME As String = "Sheet_Name"
-  Const COL_NAME_CELL_ADDRESS As String = "Cell_Address"
-  Const COL_NAME_VALIDATION_TYPE As String = "Validation_Type"
-  Const COL_COUNT As Long = 4
-  Const REPORT_WORKSHEET_CODENAME As String = _
-    "SheetDataValidationAuditRpt"
-  Const REPORT_WORKSHEET_NAME = "Data Validation Audit Rpt"
-  Const REPORT_WORKSHEET_TITLE = "Data Validation Audit Report"
-  Const TABLE_FIRST_ROW As Long = 3
-  Const TABLE_NAME As String = "tbl_Data_Validation_Audit_Rpt"
-  
-  ' Valid XlDVType enumeration values ranges from 0 to 7
-  Const XLDVTYPE_UNDEFINED As Long = -1
-  
-  Dim creatingNewWs As Boolean
-  Dim errorOccurred As Boolean
-  Dim ps As clsProtectionState
-  Dim rowCount As Long
-  Dim rptTable As ListObject
-  Dim rptWs As Worksheet
-  Dim targetCell As Range
-  Dim tblRange As Range
-  Dim updateButton As Button
-  Dim validationRange As Range
-  Dim vType As XlDVType
-  Dim ws As Worksheet
-  Dim wb As Workbook
-  
-  errorOccurred = False
-
-  OptimizeAppEnvForSpeed True
-  
-  Set wb = ThisWorkbook
-  
-  ' Create or clear the audit sheet
-  Set rptWs = _
-    GetWsByCodeName(REPORT_WORKSHEET_CODENAME)
-  creatingNewWs = (rptWs Is Nothing)
-  
-  If creatingNewWs Then
-    Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
-    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = _
-      REPORT_WORKSHEET_CODENAME
-    
-    With rptWs
-      .name = REPORT_WORKSHEET_NAME
-      
-      With .Cells.Font
-        .name = "Aptos Narrow"
-        .Size = 10
-      End With
-      
-      With .Cells(1, 1)
-        .value = REPORT_WORKSHEET_TITLE
-        With .Font
-          .name = "Aptos Display"
-          .Size = 12
-          .Bold = True
-        End With
-      End With
-      
-    End With
-          
-    ' Create Button: Left, Top, Width, Height (Positioned near Column F)
-    Set updateButton = rptWs.buttons.Add( _
-      Left:=300, _
-      Top:=5, _
-      Width:=80, _
-      Height:=20)
-    DoEvents ' Brief pause to let Excel register the object
-    With updateButton
-      .OnAction = "RunUpsrtDataValRptVrbse"
-      .Caption = "Update"
-      .name = BUTTON_NAME
-      .Placement = xlFreeFloating
-    End With
-  Else
-    Set ps = clsProtectionStateStatic.Create(rptWs)
-    rptWs.Unprotect
-    ' Clear existing ListObject if it exists to avoid conflicts
-    On Error Resume Next
-    rptWs.ListObjects(TABLE_NAME).Delete
-    err.Clear
-    On Error GoTo Err_Proc
-  End If
-    
-  ' Headers\
-  rptWs.Cells(TABLE_FIRST_ROW, COL_INDEX_FORMULA_SOURCE).value = _
-    COL_NAME_FORMULA_SOURCE
-  rptWs.Cells(TABLE_FIRST_ROW, COL_INDEX_SHEET_INDEX).value = _
-    COL_NAME_SHEET_NAME
-  rptWs.Cells(TABLE_FIRST_ROW, COL_INDEX_CELL_ADDRESS).value = _
-    COL_NAME_CELL_ADDRESS
-  rptWs.Cells(TABLE_FIRST_ROW, COL_INDEX_VALIDATION_TYPE).value = _
-    COL_NAME_VALIDATION_TYPE
-  rptWs.Range( _
-    rptWs.Cells(TABLE_FIRST_ROW, 1), _
-    rptWs.Cells(TABLE_FIRST_ROW, COL_COUNT) _
-    ).Font.Bold = True
-  rowCount = TABLE_FIRST_ROW + 1
-
-  ' Loop through all sheets to find Validation
-  For Each ws In ThisWorkbook.Worksheets
-    ' Exclude the reference report worksheets to avoid duplications.
-    If IsWsRefRpt(ws.codeName) Then GoTo Continue_ws
-    
-    Set validationRange = Nothing
-    ' SpecialCells will error if NO cells have validation, so we keep this one
-    On Error Resume Next
-    Set validationRange = ws.Cells.SpecialCells(xlCellTypeAllValidation)
-    err.Clear
-    On Error GoTo Err_Proc
-    
-    If Not validationRange Is Nothing Then
-      For Each targetCell In validationRange.Cells
-        vType = XLDVTYPE_UNDEFINED
-        On Error Resume Next
-        vType = targetCell.Validation.Type
-        err.Clear
-        On Error GoTo Err_Proc
-        
-        'xlValidateList = 3, xlValidateCustom = 7;
-        If vType = xlValidateList Or vType = xlValidateCustom Then
-          rptWs.Cells(rowCount, 1).value = "'" & targetCell.Validation.Formula1
-          rptWs.Cells(rowCount, 2).value = "'" & ws.name
-          rptWs.Cells(rowCount, 3).value = "'" & targetCell.Address
-          rptWs.Cells(rowCount, 4).value = "'" & "List"
-          ' Prepend ' to ensure formulas are treated as text
-          rowCount = rowCount + 1
-        End If
-      Next targetCell
-    End If
-Continue_ws:
-  Next ws
-  
-  ' Convert Data Range into an Excel Table (ListObject)
-  If rowCount > TABLE_FIRST_ROW + 2 Then
-    Set tblRange = rptWs.Range( _
-      rptWs.Cells(TABLE_FIRST_ROW, 1), _
-      rptWs.Cells(rowCount - 1, COL_COUNT))
-    Set rptTable = rptWs.ListObjects.Add( _
-      SourceType:=xlSrcRange, _
-      Source:=tblRange, _
-      XlListObjectHasHeaders:=xlYes)
-      
-    With rptTable
-      .name = TABLE_NAME
-      
-      With .Range.Font
-        .name = "Aptos Narrow"
-        .Size = 10
-      End With ' .Range.Font
-  
-    ' Sorting Logic using the newly created Table
-      With .Sort
-      
-        With .SortFields
-          .Clear
-          .Add2 key:=rptTable.ListColumns(COL_NAME_FORMULA_SOURCE).Range
-          .Add2 key:=rptTable.ListColumns(COL_NAME_SHEET_NAME).Range
-          .Add2 key:=rptTable.ListColumns(COL_NAME_CELL_ADDRESS).Range
-        End With ' .SortFields
-        
-        .Header = xlYes
-        .Apply
-        
-      End With ' .Sort
-    End With ' . rptTable
-
-  End If
-    
-  If creatingNewWs Then
-    ' Auto-fit columns for clean presentation
-    rptTable.Range.Columns.AutoFit
-    rptWs.Protect
-  Else
-    ps.Restore rptWs
-  End If
-  
-Exit_Proc:
-  OptimizeAppEnvForSpeed False
-  Const MSGBOX_TITLE = "Data Validation Audit Report"
-  If errorOccurred Then
-    ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
-    MsgBox "Audit Failed.", vbCritical, MSGBOX_TITLE
-  ElseIf Not silent Then
-    MsgBox _
-      "Audit Complete. Found " & (rowCount - 2) & " validation rules.", _
-      vbInformation, _
-      MSGBOX_TITLE
-  End If
-  Exit Sub
-Err_Proc:
-  errorOccurred = True
-  Resume Exit_Proc
-End Sub
-
-'------------------------------------------------------------------------------'
 ' Summary: Updates the defined names all references worksheet.
 ' Remarks: This sheet includes defined names referenced by:
 '   1) Worksheet cells,
@@ -789,7 +527,7 @@ End Sub
 '     are updated with can be very slow. It is an optional parameter with
 '     a default value of False.
 ' Date Created: 2026-06-14
-' Date Last Modified: 2026-08-18
+' Date Last Modified: 2026-08-27
 '------------------------------------------------------------------------------'
 Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   On Error GoTo Err_Proc
@@ -822,8 +560,6 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   Const DEST_COL_RVBA_COUNT As Long = 8 ' H
   Const DEST_COL_RVBA_NAMES As Long = 9 ' I
   Const DEST_COL_ANY_REFS As Long = 10 ' J
-  Const DEST_WS_CODENAME As String = "SheetDefNamesAllRefs"
-  Const DEST_WS_NAME As String = "Def Names All Refs"
   Const DEST_WS_TITLE = "Defined Names, All References"
   Const REF_COUNT_LIMIT = 10
   Const WS_REF_RPT_COL_HEADER_NAMES As String = "Name"
@@ -918,16 +654,16 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
 
   OptimizeAppEnvForSpeed True
   
-  Set destWs = GetWsByCodeName(DEST_WS_CODENAME)
+  Set destWs = GetWsByCodeName(WS_DEF_NAMES_ALL_RPT_CODENAME)
   creatingNewDestWs = (destWs Is Nothing)
   
   If creatingNewDestWs Then
     Set destWs = ThisWorkbook.Worksheets.Add(After:=Sheets(Sheets.count - 1))
     ThisWorkbook.VBProject.VBComponents(destWs.codeName).name = _
-      DEST_WS_CODENAME
+      WS_DEF_NAMES_ALL_RPT_CODENAME
       
     With destWs
-      .name = DEST_WS_NAME
+      .name = WS_DEF_NAMES_ALL_RPT_NAME
       
       With .Cells.Font
         .name = "Aptos Narrow"
@@ -1236,7 +972,7 @@ Skip_For_Print_Title:
   End With ' destTbl
     
   If Not creatingNewDestWs Then
-    ps.Restore destWs
+    ps.Restore
   End If
   
 Exit_Proc:
@@ -1277,7 +1013,7 @@ End Sub
 '     the user when complete. It is an optional parameter with a default value
 '     of False.
 ' Date Created: 2025-10-19
-' Date Last Modified: 2026-08-18
+' Date Last Modified: 2026-08-27
 '------------------------------------------------------------------------------'
 Public Sub UpsertDefNamesWsRefRpt( _
   Optional fastMode As Boolean = False, _
@@ -1308,10 +1044,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
   Const COL_NUM_REF_COUNT As Integer = 7
   Const COL_NUM_REFS As Integer = 8
 
-  
   Const REF_COUNT_LIMIT = 10
-  Const REPORT_WORKSHEET_CODENAME As String = "SheetDefNamesWsRefsRpt"
-  Const REPORT_WORKSHEET_NAME As String = "Def Names Ws Refs Rpt"
   Const TABLE_FIRST_ROW = 3
   Const TABLE_NAME As String = "tbl_DefNamesWsRefsRpt"
   Const REPORT_WORKSHEET_TITLE = "Defined Names, Worksheet References"
@@ -1351,15 +1084,15 @@ Public Sub UpsertDefNamesWsRefRpt( _
   Set wb = ThisWorkbook
   
   ' Create or clear the report worksheet
-  Set rptWs = GetWsByCodeName(REPORT_WORKSHEET_CODENAME)
+  Set rptWs = GetWsByCodeName(WS_DEF_NAMES_ALL_RPT_CODENAME)
   creatingNewWs = (rptWs Is Nothing)
   
   If creatingNewWs Then
     Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
-    rptWs.name = REPORT_WORKSHEET_NAME
+    rptWs.name = WS_DEF_NAMES_ALL_RPT_NAME
     ' This requires "Trust access to the VBA project object model" to be enabled and
     ' also for the workbook file to unblocked.
-    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = REPORT_WORKSHEET_CODENAME
+    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = WS_DEF_NAMES_ALL_RPT_CODENAME
 
     With rptWs.Cells.Font
         .name = "Aptos Narrow"
@@ -1627,7 +1360,7 @@ Continue_WbDefName:
   If creatingNewWs Then
     rptWs.Protect
   Else
-    ps.Restore rptWs
+    ps.Restore
   End If
   
 Exit_Proc:
@@ -1639,7 +1372,7 @@ Exit_Proc:
     mbButtons = vbCritical
   Else
     mbPrompt = "Defined Names Report generated/updated in the " & vbCrLf & _
-      """" & REPORT_WORKSHEET_NAME & """ Worksheet."
+      """" & WS_DEF_NAMES_ALL_RPT_NAME & """ Worksheet."
     mbButtons = vbInformation
   End If
   
@@ -1662,7 +1395,7 @@ End Sub
 '     the user when complete. It is an optional parameter with a default value
 '     of False.'
 ' Date Created: 2026-07-07
-' Date Last Modified: 2026-08-18
+' Date Last Modified: 2026-08-27
 '------------------------------------------------------------------------------'
 Public Sub UpsertDvAllRpt(Optional silent As Boolean = False)
   On Error GoTo Err_Proc
@@ -1690,9 +1423,6 @@ Public Sub UpsertDvAllRpt(Optional silent As Boolean = False)
   Const COL_HDR_F2 As String = "F2"
   Const COL_HDR_F2_TYPE As String = "F2_Type"
   
-  Const RPT_WS_CODENAME As String = _
-    "SheetDvAllRpt"
-  Const RPT_WS_NAME = "DV All Rpt"
   Const RPT_WS_TITLE = "Data Validation, All Cells, Report"
   Const TBL_FIRST_ROW As Long = 3
   Const TBL_NAME As String = "tbl_DvAllRpt"
@@ -1724,16 +1454,16 @@ Public Sub UpsertDvAllRpt(Optional silent As Boolean = False)
 
   ' Create or clear the audit sheet
   Set rptWs = _
-    GetWsByCodeName(RPT_WS_CODENAME)
+    GetWsByCodeName(WS_DATA_VAL_ALL_RPT_CODENAME)
   creatingNewWs = (rptWs Is Nothing)
 
   If creatingNewWs Then
     Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
     ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = _
-      RPT_WS_CODENAME
+      WS_DATA_VAL_ALL_RPT_CODENAME
 
     With rptWs
-      .name = RPT_WS_NAME
+      .name = WS_DATA_VAL_ALL_RPT_NAME
 
       With .Cells.Font
         .name = "Aptos Narrow"
@@ -1892,7 +1622,7 @@ Continue_ws:
     rptTable.Range.Columns.AutoFit
     rptWs.Protect
   Else
-    ps.Restore rptWs
+    ps.Restore
   End If
 
 Exit_Proc:
@@ -1945,9 +1675,6 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
   
   Const REF_COUNT_LIMIT As Long = 25
   
-  Const RPT_WS_CODENAME As String = _
-    "SheetDvByForumlaRpt"
-  Const RPT_WS_NAME = "DV by F Rpt"
   Const RPT_WS_TITLE = "Formulas Used for Data Validation Report"
   Const TBL_FIRST_ROW As Long = 3
   Const TBL_NAME As String = "tbl_DvF_Rpt"
@@ -1979,16 +1706,16 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
 
   ' Create or clear the audit sheet
   Set rptWs = _
-    GetWsByCodeName(RPT_WS_CODENAME)
+    GetWsByCodeName(WS_DATA_VAL_BY_FORMULA_RPT_CODENAME)
   creatingNewWs = (rptWs Is Nothing)
 
   If creatingNewWs Then
     Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
     ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = _
-      RPT_WS_CODENAME
+      WS_DATA_VAL_BY_FORMULA_RPT_CODENAME
 
     With rptWs
-      .name = RPT_WS_NAME
+      .name = WS_DATA_VAL_BY_FORMULA_RPT_NAME
 
       With .Cells.Font
         .name = "Aptos Narrow"
@@ -2025,7 +1752,6 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
     ' Clear existing ListObject if it exists to avoid conflicts
     On Error Resume Next
     rptWs.ListObjects(TBL_NAME).Delete
-    err.Clear
     On Error GoTo Err_Proc
   End If
 
@@ -2056,7 +1782,6 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
     ' will raise an error if no cells in the range have validation.
     On Error Resume Next
     Set valRng = ws.Cells.SpecialCells(xlCellTypeAllValidation)
-    err.Clear
     On Error GoTo Err_Proc
     
     ' If no cells in this worksheet have defined data validation, then
@@ -2143,7 +1868,7 @@ Continue_ws:
     rptTable.Range.Columns.AutoFit
     rptWs.Protect
   Else
-    ps.Restore rptWs
+    ps.Restore
   End If
 
 Exit_Proc:
@@ -2182,7 +1907,7 @@ End Sub
 '     the user when complete. It is an optional parameter with a default value
 '     of False.
 ' Date Created: 2026-07-11
-' Date Last Modified: 2026-08-18
+' Date Last Modified: 2026-08-27
 '------------------------------------------------------------------------------'
 Public Sub UpsertTblsWsRefRpt( _
   Optional fastMode As Boolean = False, _
@@ -2208,8 +1933,6 @@ Public Sub UpsertTblsWsRefRpt( _
   Const COL_COUNT = 5
 
   Const REF_COUNT_LIMIT = 10
-  Const REPORT_WORKSHEET_CODENAME As String = "SheetTblsWsRefsRpt"
-  Const REPORT_WORKSHEET_NAME As String = "Tables Ws Refs Rpt"
   Const TABLE_FIRST_ROW = 3
   Const TABLE_NAME As String = "tbl_TblWsRefsRpt"
   Const REPORT_WORKSHEET_TITLE = "Tables, Worksheet References"
@@ -2247,15 +1970,15 @@ Public Sub UpsertTblsWsRefRpt( _
   Set wb = ThisWorkbook
   
   ' Create or clear the report worksheet
-  Set rptWs = GetWsByCodeName(REPORT_WORKSHEET_CODENAME)
+  Set rptWs = GetWsByCodeName(WS_TBLS_WS_REF_RPT_CODENAME)
   creatingNewWs = (rptWs Is Nothing)
   
   If creatingNewWs Then
     Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
-    rptWs.name = REPORT_WORKSHEET_NAME
+    rptWs.name = WS_TBLS_WS_REF_RPT_NAME
     ' This requires "Trust access to the VBA project object model" to be enabled and
     ' also for the workbook file to unblocked.
-    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = REPORT_WORKSHEET_CODENAME
+    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = WS_TBLS_WS_REF_RPT_CODENAME
 
     With rptWs.Cells.Font
         .name = "Aptos Narrow"
@@ -2457,7 +2180,7 @@ Continue_wsForTblSearch:
   If creatingNewWs Then
     rptWs.Protect
   Else
-    ps.Restore rptWs
+    ps.Restore
   End If
   
 Exit_Proc:
@@ -2469,7 +2192,7 @@ Exit_Proc:
     mbButtons = vbCritical
   Else
     mbPrompt = "Table Worksheet Reference Report generated/updated in the " & vbCrLf & _
-      """" & REPORT_WORKSHEET_NAME & """ Worksheet."
+      """" & WS_TBLS_WS_REF_RPT_NAME & """ Worksheet."
     mbButtons = vbInformation
   End If
   
@@ -2581,7 +2304,7 @@ End Function
 ' Return(s): A dictionary that represents a list of the code names of the
 '   reference report worksheets.
 ' Date Created: 2026-07-12
-' Date Last Modified: 2026-07-13
+' Date Last Modified: 2026-08-27
 '------------------------------------------------------------------------------'
 Private Function GetRefRptCodeNameList() As Dictionary
   Const METHOD_NAME = "GetRefRptCodeNameList"
@@ -2589,12 +2312,12 @@ Private Function GetRefRptCodeNameList() As Dictionary
   Dim dict As Dictionary
   Set dict = New Dictionary
   
-  dict.Add key:="SheetDefNamesAllRefs", item:=True
-  dict.Add key:="SheetDefNamesWsRefsRpt", item:=True
-  dict.Add key:="SheetDvAllRpt", item:=True
-  dict.Add key:="SheetDvByForumlaRpt", item:=True
-  dict.Add key:="SheetTblsAllRefsRpt", item:=True
-  dict.Add key:="SheetTblsWsRefsRpt", item:=True
+  dict.Add key:=WS_DEF_NAMES_ALL_RPT_CODENAME, item:=True
+  dict.Add key:=WS_DEF_NAMES_WS_REF_RPT_CODENAME, item:=True
+  dict.Add key:=WS_DATA_VAL_ALL_RPT_CODENAME, item:=True
+  dict.Add key:=WS_DATA_VAL_BY_FORMULA_RPT_CODENAME, item:=True
+  'dict.Add key:="SheetTblsAllRefsRpt", item:=True
+  dict.Add key:=WS_TBLS_WS_REF_RPT_CODENAME, item:=True
 
   Set GetRefRptCodeNameList = dict
 Exit_Proc:
