@@ -1,7 +1,7 @@
 =LAMBDA(
   pAnyCellInSheet,
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: GetWorksheetName"
     ),

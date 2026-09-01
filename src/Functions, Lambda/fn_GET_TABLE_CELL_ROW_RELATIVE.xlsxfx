@@ -4,9 +4,9 @@
   pTbl_HeaderCell,
   pRowOffset,
   LET(
-    _comment,
+    _functionName,
     N(
-      "function name: fn_GET_TABLE_CELL_ROW_RELATIVE"
+      "fn_GET_TABLE_CELL_ROW_RELATIVE"
     ),
     _array,
     pColRng,

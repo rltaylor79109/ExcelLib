@@ -1,6 +1,6 @@
 =LAMBDA(
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: c_CM_PER_METER"
     ),

@@ -1,7 +1,7 @@
 =LAMBDA(
   pSexStr,
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: fn_IS_MALE"
     ),

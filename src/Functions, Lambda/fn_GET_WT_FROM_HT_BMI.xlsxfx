@@ -2,7 +2,7 @@
   pHeightInches,
   pBMI,
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: fn_GET_WT_FROM_HT_BMI"
     ),

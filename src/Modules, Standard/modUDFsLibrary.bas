@@ -4,7 +4,7 @@ Option Explicit
 ' Module Name: modUDFsLibrary
 ' Summary: Contains library (not application specific) user defined functions.
 ' Date Created: 2017-03-24
-' Date Last Modified: 2026-08-20
+' Date Last Modified: 2026-08-31
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -834,7 +834,7 @@ End Function
 ' Return(s): The sum of cell numeric values in a range whose column is NOT
 '   hidden and the cell does not contain an error.
 ' Date Created: 2026-08-19
-' Date Last Modified: 2026-08-19
+' Date Last Modified: 2026-08-31
 '------------------------------------------------------------------------------'
 Public Function SUM_VISIBLE_ROW(rng As Range) As Double
   On Error GoTo Err_Proc
@@ -843,20 +843,21 @@ Public Function SUM_VISIBLE_ROW(rng As Range) As Double
   Dim cell As Range
   Dim total As Double
     
-  'For Each cell In rng.Cells
-    ' Only sum cells whose column is NOT hidden and does NOT contain an error
-   ' If _
-    '  Not cell.EntireColumn.Hidden _
-     ' And _
-      'Not IsError(cell.value) _
-      'And _
-      'IsNumeric(cell.value) _
-      'Then
-       ' total = total + cell.value
-    'End If
-  'Next cell
+  total = 0
+  For Each cell In rng.Cells
+    'Only sum cells whose column is NOT hidden and does NOT contain an error
+    If _
+      Not cell.EntireColumn.Hidden _
+      And _
+      Not IsError(cell.value) _
+      And _
+      IsNumeric(cell.value) _
+      Then
+        total = total + cell.value
+    End If
+  Next cell
     
-  'SUM_VISIBLE_ROW = total
+  SUM_VISIBLE_ROW = total
   
 Exit_Proc:
   Exit Function

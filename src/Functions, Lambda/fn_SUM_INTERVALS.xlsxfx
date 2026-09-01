@@ -3,7 +3,7 @@
   pStepCount,
   pIntervalLen,
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: fn_SUM_INTERVALS"
     ),

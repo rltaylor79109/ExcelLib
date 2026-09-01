@@ -4,7 +4,7 @@
   pAgeYears,
   pIsMale,
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: fn_BEE_USC"
     ),

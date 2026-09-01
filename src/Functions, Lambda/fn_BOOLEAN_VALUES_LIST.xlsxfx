@@ -1,6 +1,6 @@
 =LAMBDA(
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name:  fn_BOOLEAN_VALUES_LIST"
     ),

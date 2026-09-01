@@ -3,7 +3,7 @@
   pPeriod,
   pNA_IfPeriodLessThanRangeLen,
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: fn_MOVING_AVG"
     ),

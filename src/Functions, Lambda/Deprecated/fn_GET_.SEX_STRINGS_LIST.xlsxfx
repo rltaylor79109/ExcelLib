@@ -1,6 +1,6 @@
 =LAMBDA(
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: fn_GET_SEX_STRINGS_LIST"
     ),

@@ -1,7 +1,7 @@
 =LAMBDA(
   pDateOfBirth,
   LET(
-    _comment,
+    _functionName,
     N(
       "NEEDS REVISION, function name: GetAgeInYears"
     ),
