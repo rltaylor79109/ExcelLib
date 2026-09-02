@@ -4,7 +4,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: fn_BMI_METRIC"
+      "NEEDS REVISION, fn_BMI_METRIC"
     ),
     _result,
     pWtKg /(

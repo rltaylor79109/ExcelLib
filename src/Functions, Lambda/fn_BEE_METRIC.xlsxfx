@@ -6,7 +6,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: fn_BEE_METRIC"
+      "NEEDS REVISION, fn_BEE_METRIC"
     ),
     _result,
     10 * pWtKg + 6.25 * pHtCm - 5 * pAgeYears + IF(

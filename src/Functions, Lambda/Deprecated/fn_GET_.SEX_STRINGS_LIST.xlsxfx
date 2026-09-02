@@ -2,7 +2,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: fn_GET_SEX_STRINGS_LIST"
+      "NEEDS REVISION, fn_GET_SEX_STRINGS_LIST"
     ),
     _result,
     TRANSPOSE(

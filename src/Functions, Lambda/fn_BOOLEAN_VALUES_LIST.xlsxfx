@@ -2,7 +2,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name:  fn_BOOLEAN_VALUES_LIST"
+      "NEEDS REVISION,  fn_BOOLEAN_VALUES_LIST"
     ),
     _result,
     TRANSPOSE(

@@ -2,7 +2,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: c_INCHES_PER_METER"
+      "NEEDS REVISION, c_INCHES_PER_METER"
     ),
     _result,
     39.3701,

@@ -3,7 +3,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: fn_IS_MALE"
+      "NEEDS REVISION, fn_IS_MALE"
     ),
     _result,
     SWITCH(

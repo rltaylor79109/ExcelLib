@@ -4,7 +4,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: fn_BANKERS_ROUND"
+      "NEEDS REVISION, fn_BANKERS_ROUND"
     ),
     _defaultPrecision,
     2,

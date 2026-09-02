@@ -6,7 +6,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: fn_BEE_USC"
+      "NEEDS REVISION, fn_BEE_USC"
     ),
     _wtKg,
     pWtLbs / c_POUNDS_PER_KILOGRAM,

@@ -3,7 +3,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: GetAgeInYears"
+      "NEEDS REVISION, GetAgeInYears"
     ),
     _ageYears,
     DATEDIF(

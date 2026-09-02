@@ -5,7 +5,7 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, function name: fn_SUM_INTERVALS"
+      "NEEDS REVISION, fn_SUM_INTERVALS"
     ),
     _seq,
     SEQUENCE(
