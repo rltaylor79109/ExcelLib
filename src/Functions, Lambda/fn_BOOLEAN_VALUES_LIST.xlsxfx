@@ -2,7 +2,11 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION,  fn_BOOLEAN_VALUES_LIST"
+      "fn_BOOLEAN_VALUES_LIST"
+    ),
+    _comment,
+    N(
+      "Gets a list of allowable boolean value, True and False. It is typcially used indirectly as a data validation source."
     ),
     _result,
     TRANSPOSE(

@@ -4,16 +4,20 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, fn_BMI_USC"
+      "fn_BMI_USC"
+    ),
+    _comment,
+    N(
+      "Calculates Body Mass Index (BMI) using U.S. Customary units for height and weight, inches and pounds."
     ),
     _wtKg,
     pWtLbs / c_POUNDS_PER_KILOGRAM,
-    _htM,
-    pHtInches / c_INCHES_PER_METER,
+    _htCm,
+    pHtInches / c_INCHES_PER_METER * c_CM_PER_METER,
     _result,
     fn_BMI_METRIC(
       _wtKg,
-      _htM
+      _htCm
     ),
     _result
   )

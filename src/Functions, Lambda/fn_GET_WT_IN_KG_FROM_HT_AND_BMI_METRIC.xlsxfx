@@ -1,0 +1,19 @@
+=LAMBDA(
+  pHtCm,
+  pBMI,
+  LET(
+    _functionName,
+    N(
+      "fn_GET_WT_IN_KG_FROM_HT_AND_BMI_METRIC"
+    ),
+    _comment,
+    N(
+      "Calculates body weight in kilograms from body mass index (BMI) and height in centimeters."
+    ),
+    pHtM,
+    pHtCm / c_CM_PER_METER,
+    _result,
+    pBMI * pHtM * pHtM,
+    _result
+  )
+)

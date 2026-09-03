@@ -6,7 +6,11 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, fn_BEE_USC"
+      "fn_BEE_USC"
+    ),
+    _comment,
+    N(
+      "Calulates basal energy expenditure using the Mifflin-St Jeor formula and U.S. Customary units for height and weight, feet/inches and pounds."
     ),
     _wtKg,
     pWtLbs / c_POUNDS_PER_KILOGRAM,

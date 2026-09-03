@@ -1,0 +1,46 @@
+=LAMBDA(
+  pDateOfBirth,
+  pDateCurrent,
+  [pRoundToYears],
+  LET(
+    _functionName,
+    N(
+      "fn_AGE"
+    ),
+    _comment,
+    N(
+      "Calculate age in years from the specified date of birth and current date."
+    ),
+    pRoundToYears,
+    if(
+      ISOMITTED(
+        pRoundToYears
+      ),
+      TRUE,
+      pRoundToYears
+    ),
+    _start_date,
+    pDateOfBirth,
+    _end_date,
+    pDateCurrent,
+    _basisArgActualActual,
+    1,
+    _basis,
+    _basisArgActualActual,
+    _prelimResult,
+    YEARFRAC(
+      _start_date,
+      _end_date,
+      _basis
+    ),
+    _result,
+    IF(
+      pRoundToYears,
+      INT(
+        _prelimResult
+      ),
+      _prelimResult
+    ),
+    _result
+  )
+)

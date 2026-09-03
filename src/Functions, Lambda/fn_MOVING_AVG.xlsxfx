@@ -5,7 +5,11 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, fn_MOVING_AVG"
+      "fn_MOVING_AVG"
+    ),
+    _comment,
+    N(
+      "Calculates with moving average of the values contained in the specified range with the specified duration."
     ),
     _dataNAsRemoved,
     FILTER(

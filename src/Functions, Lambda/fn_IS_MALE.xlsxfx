@@ -3,7 +3,11 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, fn_IS_MALE"
+      "fn_IS_MALE"
+    ),
+    _comment,
+    N(
+      "If the input is 'M' or 'Male' then TRUE; if it is 'F' or 'Female' then FALSE; otherwise #N/A. It is case insenstive."
     ),
     _result,
     SWITCH(

@@ -1,11 +1,17 @@
 =LAMBDA(
   pWtKg,
-  pHtM,
+  pHtCm,
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, fn_BMI_METRIC"
+      "fn_BMI_METRIC"
     ),
+    _comment,
+    N(
+      "Calculates Body Mass Index (BMI) using metric unit for height and weight, centimeters and kilograms."
+    ),
+    pHtM,
+    pHtCm / c_CM_PER_METER,
     _result,
     pWtKg /(
       pHtM * pHtM

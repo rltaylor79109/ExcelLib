@@ -1,11 +1,15 @@
 =LAMBDA(
-  pStartRange,
+  pStartRng,
   pStepCount,
   pIntervalLen,
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, fn_SUM_INTERVALS"
+      "fn_SUM_INTERVALS"
+    ),
+    _comment,
+    N(
+      "Sums a ranges values spaced by an interval. For example SUM_INTERVALS(12345678,2,3) would sum 1, 3, 5."
     ),
     _seq,
     SEQUENCE(
@@ -15,7 +19,7 @@
     ) * pIntervalLen + 1,
     _toSum,
     INDEX(
-      pStartRange,
+      pStartRng,
       _seq,
       1
     ),

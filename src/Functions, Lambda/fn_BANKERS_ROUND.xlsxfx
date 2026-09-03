@@ -4,7 +4,11 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, fn_BANKERS_ROUND"
+      "fn_BANKERS_ROUND"
+    ),
+    _comment,
+    N(
+      "Round the specied value using the Banker' rounding method."
     ),
     _defaultPrecision,
     2,

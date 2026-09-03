@@ -1,0 +1,4 @@
+    _comment,
+    N(
+      "Get estimated anaerobic threshold for activity."
+    ),

@@ -1,0 +1,24 @@
+=LAMBDA(
+  pHeightInches,
+  pBMI,
+  LET(
+    _functionName,
+    N(
+      "fn_GET_WT_IN_POUNDS_FROM_HT_AND_BMI_USC"
+    ),
+    _comment,
+    N(
+      "Calculates body weight in pounds from body mass index (BMI) and height in inches."
+    ),
+    _pHtCm,
+    pHeightInches / c_INCHES_PER_METER * c_CM_PER_METER,
+    _wtKg,
+    fn_GET_WT_IN_KG_FROM_HT_AND_BMI_METRIC(
+      _pHtCm,
+      pBMI
+    ),
+    _result,
+    _wtKg * c_POUNDS_PER_KILOGRAM,
+    _result
+  )
+)

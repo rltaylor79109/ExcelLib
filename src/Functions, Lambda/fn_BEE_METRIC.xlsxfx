@@ -6,7 +6,11 @@
   LET(
     _functionName,
     N(
-      "NEEDS REVISION, fn_BEE_METRIC"
+      "fn_BEE_METRIC"
+    ),
+    _comment,
+    N(
+      "Calulates basal energy expenditure using the Mifflin-St Jeor formula and metric units for height (centimeters) and weight (kilograms)."
     ),
     _result,
     10 * pWtKg + 6.25 * pHtCm - 5 * pAgeYears + IF(
