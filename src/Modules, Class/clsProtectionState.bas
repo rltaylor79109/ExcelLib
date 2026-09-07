@@ -323,4 +323,3 @@ Err_Proc:
   ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Sub
-

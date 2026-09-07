@@ -2,9 +2,9 @@ Option Explicit
 
 '------------------------------------------------------------------------------'
 ' Class Module Name: clsDVFormulaRefInfo
-' Summary: Contains data validation formula reference information
+' Summary: Contains data validation formula reference information.
 ' Date Created: 2026-07-01
-' Date Last Modified: 2026-07-08
+' Date Last Modified: 2026-09-06
 '------------------------------------------------------------------------------'
 
 '------------------------------------------------------------------------------'
@@ -121,7 +121,7 @@ End Sub
 '     keyed by their Worksheet names.It is an optional parameter with a default value
 '     of nothing.
 ' Date Created: 2026-07-07
-' Date Last Modified: 2026-07-07
+' Date Last Modified: 2026-09-06
 '---------------------------------------------------s---------------------------'
 Friend Sub InitWithCell( _
   ByRef pCell As Range, _
@@ -137,7 +137,7 @@ Friend Sub InitWithCell( _
   Dim f2Type As ValidationSrcType
   Dim op As XlFormatConditionOperator
   
-  GetDvFormulasAndTypes _
+  clsDVFormulaRefInfoStatic.GetDvFormulasAndTypes _
     targetCell:=pCell, _
     op:=op, _
     f1:=f1, _
@@ -220,9 +220,12 @@ End Property
 '    validation formula.
 '   cellAddress- The address of the cell that uses this validation formula.
 ' Date Created: 2026-07-02
-' Date Last Modified: 2026-07-08
+' Date Last Modified: 2026-09-06
 '------------------------------------------------------------------------------'
-Friend Sub AddReference(wsName As String, cellAddress As String)
+Friend Sub AddReference( _
+  ByVal wsName As String, _
+  ByVal cellAddress As String)
+  
   On Error GoTo Err_Proc
   Const METHOD_NAME As String = "AddReference"
 
@@ -295,8 +298,8 @@ End Function
 ' Date Last Modified: 2026-07-08
 '------------------------------------------------------------------------------'
 Friend Function GetRefString( _
-  refLimitExceeded As Boolean, _
-  Optional refLimit As Long = 10) _
+  ByVal refLimitExceeded As Boolean, _
+  Optional ByVal refLimit As Long = 10) _
   As String
   
   On Error GoTo Err_Proc

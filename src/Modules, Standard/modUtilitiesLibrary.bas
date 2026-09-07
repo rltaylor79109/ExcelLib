@@ -1,10 +1,11 @@
 Option Explicit
+Option Private Module
 
 '------------------------------------------------------------------------------'
 ' Module Name: modUtilitiesLibrary
 ' Summary: Contains library (not application specific)utility methods.
 ' Date Created: 2026-05-07
-' Date Last Modified: 2026-08-27
+' Date Last Modified: 2026-09-06
 '------------------------------------------------------------------------------'
 '------------------------------------------------------------------------------'
 ' Fields
@@ -74,16 +75,16 @@ Public Sub ProtectAllSheetsAndCharts( _
   For Each ws In wb.Worksheets
     excludedWs = False
     If Not (excludewsNamesDict Is Nothing) Then
-      excludedWs = excludewsNamesDict.Exists(ws.name)
+      excludedWs = excludewsNamesDict.Exists(ws.Name)
     End If
     
     If excludedWs Then
       If Not silentMode Then
-        Debug.Print "Excluding " & ws.name & " from Protection"
+        Debug.Print "Excluding " & ws.Name & " from Protection"
       End If
     Else
       If Not silentMode Then
-        Debug.Print "Protecting " & ws.name
+        Debug.Print "Protecting " & ws.Name
       End If
       ws.Protect
     End If
@@ -92,16 +93,16 @@ Public Sub ProtectAllSheetsAndCharts( _
   For Each cht In wb.Charts
     excludedCht = False
     If Not (excludeChrtNamesDict Is Nothing) Then
-      excludedCht = excludeChrtNamesDict.Exists(cht.name)
+      excludedCht = excludeChrtNamesDict.Exists(cht.Name)
     End If
     
     If excludedCht Then
       If Not silentMode Then
-        Debug.Print "Excluding " & cht.name & " from Protection"
+        Debug.Print "Excluding " & cht.Name & " from Protection"
       End If
     Else
       If Not silentMode Then
-        Debug.Print "Protecting " & cht.name
+        Debug.Print "Protecting " & cht.Name
       End If
       cht.Protect
     End If
@@ -181,13 +182,13 @@ End Sub
 ' Remarks: It is a wrapper that allows this method to be assigned as the macro
 '   for a button on a worksheet.
 ' Date Created: 2026-06-17
-' Date Last Modified: 2026-07-12
+' Date Last Modified: 2026-08-31
 '------------------------------------------------------------------------------'
-Public Sub RunUpsertDefNamesAllRptFast()
+Public Sub RunUpsertDefNamesAllRptFastVrbse()
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "RunUpsertDefNamesAllRptFast"
+  Const METHOD_NAME As String = "RunUpsertDefNamesAllRptFastVrbse"
 
-  UpsertDefNamesAllRefsRpt fastMode:=True
+  UpsertDefNamesAllRefsRpt fastMode:=True, silent:=False
   
 Exit_Proc:
   Exit Sub
@@ -204,13 +205,13 @@ End Sub
 ' Remarks: It is a wrapper that allows this method to be assigned as the macro
 '   for a button on a worksheet.
 ' Date Created: 2026-06-17
-' Date Last Modified: 2026-07-12
+' Date Last Modified: 2026-08-31
 '------------------------------------------------------------------------------'
-Public Sub RunUpsertDefNamesAllRptSlow()
+Public Sub RunUpsertDefNamesAllRptSlowVrbse()
   On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "RunUpsertDefNamesAllRptSlow"
+  Const METHOD_NAME As String = "RunUpsertDefNamesAllRptSlowVrbse"
 
-  UpsertDefNamesAllRefsRpt fastMode:=False
+  UpsertDefNamesAllRefsRpt fastMode:=False, silent:=False
   
 Exit_Proc:
   Exit Sub
@@ -358,36 +359,6 @@ Err_Proc:
 End Sub
 
 '------------------------------------------------------------------------------'
-' Summary: Optimize the Excel application environment for execution of heavy
-'   procedure execution.
-' Parameter(s):
-'   optimize - If True, the Excel application environment is optimized
-'     execution of heavy procedure execution; otherwise, the environment is
-'     restored to Excel application defaults.
-' Date Created: 2026-08-18
-' Date Last Modified: 2026-08-18
-'------------------------------------------------------------------------------'
-Public Sub OptimizeAppEnvForSpeed(ByVal optimize As Boolean)
-  On Error GoTo Err_Proc
-  Const METHOD_NAME As String = "UnprotectAllSheetsAndCharts"
-  
-  With Application
-    .ScreenUpdating = Not optimize
-    .DisplayAlerts = Not optimize
-    .EnableEvents = Not optimize
-    .Calculation = IIf(optimize, xlCalculationManual, xlCalculationAutomatic)
-    Application.Calculate
-  End With
-
-Exit_Proc:
-  Exit Sub
-Err_Proc:
-  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
-  Resume Exit_Proc
-End Sub
-
-
-'------------------------------------------------------------------------------'
 ' Summary: Shows the standard method error message box.
 ' Parameter(s):
 '   err - The object that contains the error information.
@@ -477,14 +448,14 @@ Public Sub UnprotectAllSheetsAndCharts(Optional silentMode As Boolean = False)
   
   For Each ws In wb.Worksheets
     If Not silentMode Then
-      Debug.Print "Unprotecting " & ws.name
+      Debug.Print "Unprotecting " & ws.Name
     End If
     ws.Unprotect
   Next
   
   For Each cht In wb.Charts
     If Not silentMode Then
-      Debug.Print "Unprotecting " & cht.name
+      Debug.Print "Unprotecting " & cht.Name
     End If
     cht.Unprotect
   Next
@@ -526,10 +497,17 @@ End Sub
 '   fastMode - If True, the source worksheets are not updated; otherwise they
 '     are updated with can be very slow. It is an optional parameter with
 '     a default value of False.
+'   silent - If True, the method does not display any messages to the user
+'     except for errors; otherwise a report updated message is displayed to
+'     the user when complete. It is an optional parameter with a default value
+'     of False.
 ' Date Created: 2026-06-14
-' Date Last Modified: 2026-08-27
+' Date Last Modified: 2026-08-31
 '------------------------------------------------------------------------------'
-Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
+Public Sub UpsertDefNamesAllRefsRpt( _
+  Optional ByVal fastMode As Boolean = False, _
+  Optional ByVal silent As Boolean = False)
+  
   On Error GoTo Err_Proc
   Const METHOD_NAME As String = "UpsertDefNamesAllRefsRpt"
   
@@ -567,7 +545,7 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   Const WS_REF_RPT_COL_HEADER_REFERENCES As String = "References"
   Const WS_REF_RPT_COL_HEADER_REFERS_TO As String = "Refers_To"
   Const WS_REF_RPT_COL_HEADER_VISIBLE As String = "Visible"
-  Const WS_REF_RPT_TABLE_NAME As String = "tbl_DefNamesWsRefsRpt"
+  Const TBL_WS_DEF_NAMES_WS_REFS_RPT_NAME As String = "tbl_DefNamesWsRefsRpt"
   Const TABLE_HEADER_BACKGROUND_COLORINDEX As Long = 8544277
   Const TABLE_HEADER_FOREGROUND_COLORINDEX As Long = 16777215
   Const VAL_RPT_HEADER_F1 = "F1"
@@ -588,6 +566,7 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   Dim destUpdateButtonSlow As Button
   Dim destWs As Worksheet
   Dim rngCollection As Collection
+  Dim errDesc As String
   Dim errorOccurred As Boolean
   Dim formulaCell As Range
   Dim isInF1 As Boolean
@@ -600,13 +579,15 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   Dim refCountAllNotZero As Boolean
   Dim refList As String
   Dim refListCollection As Collection
+  Dim response As VbMsgBoxResult
   Dim rng As Range
   Dim valTblRowCount As Long
-  Dim wsRefRptDefNamesTbl As ListObject
-  Dim wsRefRptMustBeUpdated As Boolean
+  Dim tblWsDefNamesWsRefsRptColCntRng As Range
+  Dim tblWsDefNamesWsRefsRptColRefsRng As Range
+  Dim tblWsDefNamesWsRefsRpt As ListObject
+  Dim wsDefNamesWsRefsRpt As Worksheet
+  Dim wsDefNamesWsRefsRptMustBeUpserted As Boolean
   Dim wsRefRptNamesColRng As Range
-  Dim wsRefRptRefCntColRng As Range
-  Dim wsRefRptReferencesColRng As Range
   Dim wsRefRptRefersToColRng As Range
   Dim wsRefRptVisibleColRng As Range
   Dim valRptTbl As ListObject
@@ -617,35 +598,51 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   Dim vbComp As VBComponent
 
   errorOccurred = False
-  
-  On Error Resume Next
-    
+         
   ' Confirm that the Defined Names Worksheet References Report contains
   ' the information needed to update the Defined Names All References report.
-  Set wsRefRptDefNamesTbl = Range(WS_REF_RPT_TABLE_NAME).ListObject
-  If wsRefRptDefNamesTbl Is Nothing Then
-    wsRefRptMustBeUpdated = True
-    GoTo Exit_Proc
-  End If
-  
   On Error Resume Next
-  Set wsRefRptRefCntColRng = _
-    wsRefRptDefNamesTbl.ListColumns(WS_REF_RPT_COL_HEADER_REF_CNT).DataBodyRange
-  err.Clear
-  If wsRefRptRefCntColRng Is Nothing Then
-    wsRefRptMustBeUpdated = True
-    GoTo Exit_Proc
-  End If
+  Set wsDefNamesWsRefsRpt = GetWsByCodeName(WS_DEF_NAMES_WS_REFS_RPT_CODENAME)
+  Set tblWsDefNamesWsRefsRpt = _
+    wsDefNamesWsRefsRpt.Range(TBL_WS_DEF_NAMES_WS_REFS_RPT_NAME).ListObject
+  Set tblWsDefNamesWsRefsRptColCntRng = tblWsDefNamesWsRefsRpt _
+    .ListColumns(WS_REF_RPT_COL_HEADER_REF_CNT).DataBodyRange
+  Set tblWsDefNamesWsRefsRptColRefsRng = _
+    tblWsDefNamesWsRefsRpt.ListColumns(WS_REF_RPT_COL_HEADER_REFERENCES).DataBodyRange
+  On Error GoTo Err_Proc
   
-  On Error Resume Next
-  Set wsRefRptReferencesColRng = _
-    wsRefRptDefNamesTbl.ListColumns(WS_REF_RPT_COL_HEADER_REFERENCES).DataBodyRange
-  err.Clear
-  If wsRefRptReferencesColRng Is Nothing Then
-    wsRefRptMustBeUpdated = True
-    GoTo Exit_Proc
-  End If
-        
+  wsDefNamesWsRefsRptMustBeUpserted = _
+    wsDefNamesWsRefsRpt Is Nothing Or _
+    tblWsDefNamesWsRefsRpt Is Nothing Or _
+    tblWsDefNamesWsRefsRptColCntRng Is Nothing Or _
+    tblWsDefNamesWsRefsRptColRefsRng Is Nothing
+    
+  If wsDefNamesWsRefsRptMustBeUpserted And fastMode Then
+    errDesc = _
+      "The Defined Names Worksheet References Report either does not " & _
+      "exist or does not contain reference information. This report " & _
+      "must be created or updated. This method cannot continue in fast mode."
+    If silent Then
+      err.Raise _
+        Number:=VBA_ERR_DEFAULT_RUNTIME_APPLICATON_OBJECT_ERR, _
+        Source:=MODULE_NAME & "." & METHOD_NAME, _
+        Description:=errDesc
+    Else
+      errDesc = errDesc & vbCrLf & vbCrLf & _
+        "Choose Ok to contine in slow mode (this may take a long time) " & _
+        "or Cancel to exit without updating the report."
+      response = MsgBox( _
+        prompt:=errDesc, _
+        buttons:=vbExclamation + vbOKCancel, _
+        title:="Cannot Continue in Fast Mode")
+      If response = vbCancel Then
+        GoTo Exit_Proc
+      Else
+        fastMode = False
+      End If ' response = vbCancel
+    End If ' silent
+  End If ' fastMode
+
   If Not fastMode Then
     ' This takes a long time to run.
     UpsertDefNamesWsRefRpt fastMode:=False, silent:=True
@@ -659,21 +656,21 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
   
   If creatingNewDestWs Then
     Set destWs = ThisWorkbook.Worksheets.Add(After:=Sheets(Sheets.count - 1))
-    ThisWorkbook.VBProject.VBComponents(destWs.codeName).name = _
+    ThisWorkbook.VBProject.VBComponents(destWs.codeName).Name = _
       WS_DEF_NAMES_ALL_RPT_CODENAME
       
     With destWs
-      .name = WS_DEF_NAMES_ALL_RPT_NAME
+      .Name = WS_DEF_NAMES_ALL_RPT_NAME
       
       With .Cells.Font
-        .name = "Aptos Narrow"
+        .Name = "Aptos Narrow"
         .Size = 10
       End With
       
       With .Cells(1, 1)
         .value = DEST_WS_TITLE
         With .Font
-          .name = "Aptos Display"
+          .Name = "Aptos Display"
           .Size = 12
           .Bold = True
         End With
@@ -717,9 +714,9 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
       Height:=20)
     DoEvents ' Brief pause to let Excel register the object
     With destUpdateButtonSlow
-      .OnAction = "RunUpsertDefNamesAllRptSlow"
+      .OnAction = "RunUpsertDefNamesAllRptSlowVrbse"
       .Caption = "Complete Update (slow)"
-      .name = BUTTON_UPDATE_SLOW_NAME
+      .Name = BUTTON_UPDATE_SLOW_NAME
       .Placement = xlFreeFloating
     End With
     
@@ -730,9 +727,9 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
       Height:=20)
     DoEvents ' Brief pause to let Excel register the object
     With destUpdateButtonFast
-      .OnAction = "RunUpsertDefNamesAllRptFast"
+      .OnAction = "RunUpsertDefNamesAllRptFastVrbse"
       .Caption = "Fast Update (Sources Not Updated)"
-      .name = BUTTON_UPDATE_FAST_NAME
+      .Name = BUTTON_UPDATE_FAST_NAME
       .Placement = xlFreeFloating
     End With
     
@@ -774,17 +771,17 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
       ).Font.Bold = True
   End With
   
-  Set wsRefRptDefNamesTbl = Range(WS_REF_RPT_TABLE_NAME).ListObject
+  Set tblWsDefNamesWsRefsRpt = Range(TBL_WS_DEF_NAMES_WS_REFS_RPT_NAME).ListObject
   Set wsRefRptNamesColRng = _
-    wsRefRptDefNamesTbl.ListColumns(WS_REF_RPT_COL_HEADER_NAMES).DataBodyRange
-  Set wsRefRptRefCntColRng = _
-    wsRefRptDefNamesTbl.ListColumns(WS_REF_RPT_COL_HEADER_REF_CNT).DataBodyRange
-  Set wsRefRptReferencesColRng = _
-    wsRefRptDefNamesTbl.ListColumns(WS_REF_RPT_COL_HEADER_REFERENCES).DataBodyRange
+    tblWsDefNamesWsRefsRpt.ListColumns(WS_REF_RPT_COL_HEADER_NAMES).DataBodyRange
+  Set tblWsDefNamesWsRefsRptColCntRng = _
+    tblWsDefNamesWsRefsRpt.ListColumns(WS_REF_RPT_COL_HEADER_REF_CNT).DataBodyRange
+  Set tblWsDefNamesWsRefsRptColRefsRng = _
+    tblWsDefNamesWsRefsRpt.ListColumns(WS_REF_RPT_COL_HEADER_REFERENCES).DataBodyRange
   Set wsRefRptRefersToColRng = _
-    wsRefRptDefNamesTbl.ListColumns(WS_REF_RPT_COL_HEADER_REFERS_TO).DataBodyRange
+    tblWsDefNamesWsRefsRpt.ListColumns(WS_REF_RPT_COL_HEADER_REFERS_TO).DataBodyRange
   Set wsRefRptVisibleColRng = _
-    wsRefRptDefNamesTbl.ListColumns(WS_REF_RPT_COL_HEADER_VISIBLE).DataBodyRange
+    tblWsDefNamesWsRefsRpt.ListColumns(WS_REF_RPT_COL_HEADER_VISIBLE).DataBodyRange
     
   Set valRptTbl = Range(VAL_RPT_TABLE_NAME).ListObject
   Set valRptColF1Rng = _
@@ -816,11 +813,11 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
       End If
       
       destWs.Cells(destRow, DEST_COL_RWs_COUNT).value = _
-        "'" & wsRefRptRefCntColRng(defNameDestIdx)
-      refCountAllNotZero = refCountAllNotZero Or (wsRefRptRefCntColRng(defNameDestIdx) <> 0)
+        "'" & tblWsDefNamesWsRefsRptColCntRng(defNameDestIdx)
+      refCountAllNotZero = refCountAllNotZero Or (tblWsDefNamesWsRefsRptColCntRng(defNameDestIdx) <> 0)
       
       destWs.Cells(destRow, DEST_COL_RWs_NAMES).value = _
-        "'" & wsRefRptReferencesColRng(defNameDestIdx)
+        "'" & tblWsDefNamesWsRefsRptColRefsRng(defNameDestIdx)
       
       ' Get the formulas that reference the defined name.
       refCount = 0
@@ -920,7 +917,7 @@ Public Sub UpsertDefNamesAllRefsRpt(Optional fastMode As Boolean = False)
             refList = refList & ", "
           End If
           
-          refList = refList & vbComp.name
+          refList = refList & vbComp.Name
           
         End If
       Next vbComp
@@ -953,10 +950,10 @@ Skip_For_Print_Title:
     Source:=destTblRng, _
     XlListObjectHasHeaders:=xlYes)
   With destTbl
-    .name = DEST_TABLE_NAME
+    .Name = DEST_TABLE_NAME
     
     With .Range.Font
-      .name = "Aptos Narrow"
+      .Name = "Aptos Narrow"
       .Size = 10
     End With
     
@@ -975,23 +972,21 @@ Skip_For_Print_Title:
     ps.Restore
   End If
   
+  If Not silent Then
+  MsgBox _
+    prompt:="The Defined Names, All References Report was successfully updated.", _
+    buttons:=vbOK + vbInformation, _
+    title:="Defined Names, All References Report"
+  End If
+  
 Exit_Proc:
   OptimizeAppEnvForSpeed False
-  Const MSGBOX_TITLE = "Defined Names, All References Report"
   If errorOccurred Then
     ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
-    MsgBox "Update Failed.", vbCritical, MSGBOX_TITLE
-  ElseIf wsRefRptMustBeUpdated Then
-    Dim mbTitle
-    mbTitle = _
-      "The Defined Names Worksheet Reference Report " & vbCrLf & _
-      "must be created/updated." & vbCrLf & vbCrLf & _
-      "You must run a Complete Update to update that report " & vbCrLf & _
-      "so that the Defined Names ALL References Report can be updated."
-    MsgBox mbTitle, vbInformation, MSGBOX_TITLE
-  Else
     MsgBox _
-      "Update Complete.", vbInformation, MSGBOX_TITLE
+      prompt:="The Defined Names, All References Report update failed", _
+      buttons:=vbCritical, _
+      title:="Defined Names, All References Report"
   End If
   Exit Sub
 Err_Proc:
@@ -1013,7 +1008,7 @@ End Sub
 '     the user when complete. It is an optional parameter with a default value
 '     of False.
 ' Date Created: 2025-10-19
-' Date Last Modified: 2026-08-27
+' Date Last Modified: 2026-08-31
 '------------------------------------------------------------------------------'
 Public Sub UpsertDefNamesWsRefRpt( _
   Optional fastMode As Boolean = False, _
@@ -1050,7 +1045,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
   Const REPORT_WORKSHEET_TITLE = "Defined Names, Worksheet References"
   
   Dim aCell As Range
-  Dim defName As name
+  Dim defName As Name
 
   Dim creatingNewWs As Boolean
   Dim errorOccurred As Boolean
@@ -1070,7 +1065,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
   Dim rowNum As Long
   Dim rptTable As ListObject
   Dim tblRange As Range
-  Dim testName As name
+  Dim testName As Name
 
   Dim updateButtonFast As Button
   Dim updateButtonSlow As Button
@@ -1084,25 +1079,25 @@ Public Sub UpsertDefNamesWsRefRpt( _
   Set wb = ThisWorkbook
   
   ' Create or clear the report worksheet
-  Set rptWs = GetWsByCodeName(WS_DEF_NAMES_ALL_RPT_CODENAME)
+  Set rptWs = GetWsByCodeName(WS_DEF_NAMES_WS_REFS_RPT_CODENAME)
   creatingNewWs = (rptWs Is Nothing)
   
   If creatingNewWs Then
     Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
-    rptWs.name = WS_DEF_NAMES_ALL_RPT_NAME
+    rptWs.Name = WS_DEF_NAMES_WS_REF_RPT_NAME
     ' This requires "Trust access to the VBA project object model" to be enabled and
     ' also for the workbook file to unblocked.
-    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = WS_DEF_NAMES_ALL_RPT_CODENAME
+    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).Name = WS_DEF_NAMES_WS_REFS_RPT_CODENAME
 
     With rptWs.Cells.Font
-        .name = "Aptos Narrow"
+        .Name = "Aptos Narrow"
         .Size = 10
     End With
       
     With rptWs.Cells(1, 1)
       .value = REPORT_WORKSHEET_TITLE
       With .Font
-        .name = "Aptos Display"
+        .Name = "Aptos Display"
         .Size = 12
         .Bold = True
       End With
@@ -1118,7 +1113,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
     With updateButtonSlow
       .OnAction = "RunUpsrtDfNmsWsRptSlowVrbs"
       .Caption = "Complete Update (slow)"
-      .name = SLOW_BUTTON_NAME
+      .Name = SLOW_BUTTON_NAME
       .Placement = xlFreeFloating
     End With
     
@@ -1131,7 +1126,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
     With updateButtonFast
       .OnAction = "RunUpsrtDfNmsWsRptFastVrbs"
       .Caption = "Fast Update (No references)"
-      .name = FAST_BUTTON_NAME
+      .Name = FAST_BUTTON_NAME
       .Placement = xlFreeFloating
     End With
   Else
@@ -1187,7 +1182,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
 '    End If
     
     ' Defined name.
-    rptWs.Cells(rowNum, COL_NUM_NAME).value = "'" & defName.name
+    rptWs.Cells(rowNum, COL_NUM_NAME).value = "'" & defName.Name
          
     ' Use RefersTo, the defined name definition.
     rptWs.Cells(rowNum, COL_NUM_REFERS_TO).value = "'" & defName.RefersTo
@@ -1196,7 +1191,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
     If defName.Parent Is wb Then
       rptWs.Cells(rowNum, COL_NUM_SCOPE).value = "'Workbook"
     Else
-      rptWs.Cells(rowNum, COL_NUM_SCOPE).value = "'" & defName.Parent.name
+      rptWs.Cells(rowNum, COL_NUM_SCOPE).value = "'" & defName.Parent.Name
     End If
       
     ' Value
@@ -1271,7 +1266,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
       For Each aCell In ws.UsedRange
         If Not aCell.HasFormula Then GoTo Continue_aCell
         
-        inStrResult = InStr(1, aCell.formula, defName.name, vbTextCompare)
+        inStrResult = InStr(1, aCell.formula, defName.Name, vbTextCompare)
         
         If inStrResult = 0 Then GoTo Continue_aCell
         
@@ -1286,7 +1281,7 @@ Public Sub UpsertDefNamesWsRefRpt( _
           If refCount <> 1 Then
             refList = refList & ";"
           End If
-          refList = refList & "'" & ws.name & "'!"
+          refList = refList & "'" & ws.Name & "'!"
           firstRef = False
         ' Except for the 1st cell address, add the cell address separator, ",".
         ElseIf refCount <> 1 Then
@@ -1336,10 +1331,10 @@ Continue_WbDefName:
     XlListObjectHasHeaders:=xlYes)
   
   With rptTable
-    .name = TABLE_NAME
+    .Name = TABLE_NAME
     
     With .Range.Font
-      .name = "Aptos Narrow"
+      .Name = "Aptos Narrow"
       .Size = 10
     End With
     
@@ -1395,7 +1390,7 @@ End Sub
 '     the user when complete. It is an optional parameter with a default value
 '     of False.'
 ' Date Created: 2026-07-07
-' Date Last Modified: 2026-08-27
+' Date Last Modified: 2026-09-06
 '------------------------------------------------------------------------------'
 Public Sub UpsertDvAllRpt(Optional silent As Boolean = False)
   On Error GoTo Err_Proc
@@ -1459,21 +1454,21 @@ Public Sub UpsertDvAllRpt(Optional silent As Boolean = False)
 
   If creatingNewWs Then
     Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
-    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = _
+    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).Name = _
       WS_DATA_VAL_ALL_RPT_CODENAME
 
     With rptWs
-      .name = WS_DATA_VAL_ALL_RPT_NAME
+      .Name = WS_DATA_VAL_ALL_RPT_NAME
 
       With .Cells.Font
-        .name = "Aptos Narrow"
+        .Name = "Aptos Narrow"
         .Size = 10
       End With
 
       With .Cells(1, 1)
         .value = RPT_WS_TITLE
         With .Font
-          .name = "Aptos Display"
+          .Name = "Aptos Display"
           .Size = 12
           .Bold = True
         End With
@@ -1491,7 +1486,7 @@ Public Sub UpsertDvAllRpt(Optional silent As Boolean = False)
     With updateButton
       .OnAction = "RunUpsertDvAllRptVrbse"
       .Caption = "Update"
-      .name = BUTTON_NAME
+      .Name = BUTTON_NAME
       .Placement = xlFreeFloating
     End With
   Else
@@ -1550,12 +1545,12 @@ Public Sub UpsertDvAllRpt(Optional silent As Boolean = False)
       ' above should insure each cell in the range has validation defined.
 
       rptWs.Cells(rowCount, COL_IDX_SHEET).value = _
-        "'" & targetCell.Parent.name ' Col 1
+        "'" & targetCell.Parent.Name ' Col 1
       rptWs.Cells(rowCount, COL_IDX_CELL).value = _
         "'" & targetCell.Address ' Col 2
       rptWs.Cells(rowCount, COL_IDX_VAL_TYPE).value = _
         "'" & XlDVTypeToString(targetCell.Validation.Type) ' Col 3
-      GetDvFormulasAndTypes _
+      clsDVFormulaRefInfoStatic.GetDvFormulasAndTypes _
         targetCell:=targetCell, _
         op:=op, _
         f1:=f1, _
@@ -1595,10 +1590,10 @@ Continue_ws:
     XlListObjectHasHeaders:=xlYes)
 
   With rptTable
-    .name = TBL_NAME
+    .Name = TBL_NAME
 
     With .Range.Font
-      .name = "Aptos Narrow"
+      .Name = "Aptos Narrow"
       .Size = 10
     End With ' .Range.Font
 
@@ -1711,21 +1706,21 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
 
   If creatingNewWs Then
     Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
-    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = _
+    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).Name = _
       WS_DATA_VAL_BY_FORMULA_RPT_CODENAME
 
     With rptWs
-      .name = WS_DATA_VAL_BY_FORMULA_RPT_NAME
+      .Name = WS_DATA_VAL_BY_FORMULA_RPT_NAME
 
       With .Cells.Font
-        .name = "Aptos Narrow"
+        .Name = "Aptos Narrow"
         .Size = 10
       End With
 
       With .Cells(1, 1)
         .value = RPT_WS_TITLE
         With .Font
-          .name = "Aptos Display"
+          .Name = "Aptos Display"
           .Size = 12
           .Bold = True
         End With
@@ -1743,7 +1738,7 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
     With updateButton
       .OnAction = "UpsertDvByFormulaRpt"
       .Caption = "Update"
-      .name = BUTTON_NAME
+      .Name = BUTTON_NAME
       .Placement = xlFreeFloating
     End With
   Else
@@ -1801,7 +1796,7 @@ Public Sub UpsertDvByFormulaRpt(Optional silent As Boolean = False)
       Set formulaRefInfo = formulaRefInfoDict(formulaKey)
       
       formulaRefInfo.AddReference _
-        wsName:=ws.name, _
+        wsName:=ws.Name, _
         cellAddress:=targetCell.Address
     Next targetCell
 Continue_ws:
@@ -1841,10 +1836,10 @@ Continue_ws:
     XlListObjectHasHeaders:=xlYes)
 
   With rptTable
-    .name = TBL_NAME
+    .Name = TBL_NAME
 
     With .Range.Font
-      .name = "Aptos Narrow"
+      .Name = "Aptos Narrow"
       .Size = 10
     End With ' .Range.Font
 
@@ -1975,20 +1970,20 @@ Public Sub UpsertTblsWsRefRpt( _
   
   If creatingNewWs Then
     Set rptWs = wb.Worksheets.Add(After:=Sheets(Sheets.count - 1))
-    rptWs.name = WS_TBLS_WS_REF_RPT_NAME
+    rptWs.Name = WS_TBLS_WS_REF_RPT_NAME
     ' This requires "Trust access to the VBA project object model" to be enabled and
     ' also for the workbook file to unblocked.
-    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).name = WS_TBLS_WS_REF_RPT_CODENAME
+    ThisWorkbook.VBProject.VBComponents(rptWs.codeName).Name = WS_TBLS_WS_REF_RPT_CODENAME
 
     With rptWs.Cells.Font
-        .name = "Aptos Narrow"
+        .Name = "Aptos Narrow"
         .Size = 10
     End With
       
     With rptWs.Cells(1, 1)
       .value = REPORT_WORKSHEET_TITLE
       With .Font
-        .name = "Aptos Display"
+        .Name = "Aptos Display"
         .Size = 12
         .Bold = True
       End With
@@ -2004,7 +1999,7 @@ Public Sub UpsertTblsWsRefRpt( _
     With updateButtonSlow
       .OnAction = "RunUpsrtTblsWsRptSlowVrbs"
       .Caption = "Complete Update (slow)"
-      .name = SLOW_BUTTON_NAME
+      .Name = SLOW_BUTTON_NAME
       .Placement = xlFreeFloating
     End With
     
@@ -2017,7 +2012,7 @@ Public Sub UpsertTblsWsRefRpt( _
     With updateButtonFast
       .OnAction = "RunUpsrtTblsWsRptFastVrbs"
       .Caption = "Fast Update (No references)"
-      .name = FAST_BUTTON_NAME
+      .Name = FAST_BUTTON_NAME
       .Placement = xlFreeFloating
     End With
   Else
@@ -2062,11 +2057,11 @@ Public Sub UpsertTblsWsRefRpt( _
       #End If
      
       ' Table name.
-      rptWs.Cells(rowNum, COL_NUM_NAME).value = "'" & targetTbl.name
+      rptWs.Cells(rowNum, COL_NUM_NAME).value = "'" & targetTbl.Name
            
       ' Table Range Address
       rptWs.Cells(rowNum, COL_NUM_ADDRESS).value = _
-        "'" & "'" & wsForTblSearch.name & "'!" & targetTbl.Range.Address
+        "'" & "'" & wsForTblSearch.Name & "'!" & targetTbl.Range.Address
         
       ' Comment
       rptWs.Cells(rowNum, COL_NUM_COMMENT) = "'" & targetTbl.Comment
@@ -2091,7 +2086,7 @@ Public Sub UpsertTblsWsRefRpt( _
         For Each targetCell In wsForRefSearch.UsedRange
           If Not targetCell.HasFormula Then GoTo Continue_targetCell
           
-          inStrResult = InStr(1, targetCell.formula, targetTbl.name, vbTextCompare)
+          inStrResult = InStr(1, targetCell.formula, targetTbl.Name, vbTextCompare)
           If inStrResult = 0 Then GoTo Continue_targetCell
           
           refCount = refCount + 1
@@ -2105,7 +2100,7 @@ Public Sub UpsertTblsWsRefRpt( _
             If refCount <> 1 Then
               refList = refList & ";"
             End If
-            refList = refList & "'" & wsForRefSearch.name & "'!"
+            refList = refList & "'" & wsForRefSearch.Name & "'!"
             firstRef = False
           ' Except for the 1st cell address, add the cell address separator, ",".
           ElseIf refCount <> 1 Then
@@ -2158,10 +2153,10 @@ Continue_wsForTblSearch:
     XlListObjectHasHeaders:=xlYes)
   
   With rptTable
-    .name = TABLE_NAME
+    .Name = TABLE_NAME
     
     With .Range.Font
-      .name = "Aptos Narrow"
+      .Name = "Aptos Narrow"
       .Size = 10
     End With
     
@@ -2313,7 +2308,7 @@ Private Function GetRefRptCodeNameList() As Dictionary
   Set dict = New Dictionary
   
   dict.Add key:=WS_DEF_NAMES_ALL_RPT_CODENAME, item:=True
-  dict.Add key:=WS_DEF_NAMES_WS_REF_RPT_CODENAME, item:=True
+  dict.Add key:=WS_DEF_NAMES_WS_REFS_RPT_CODENAME, item:=True
   dict.Add key:=WS_DATA_VAL_ALL_RPT_CODENAME, item:=True
   dict.Add key:=WS_DATA_VAL_BY_FORMULA_RPT_CODENAME, item:=True
   'dict.Add key:="SheetTblsAllRefsRpt", item:=True
@@ -2354,6 +2349,35 @@ Err_Proc:
   ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
   Resume Exit_Proc
 End Function
+
+'------------------------------------------------------------------------------'
+' Summary: Optimize the Excel application environment for execution of heavy
+'   procedure execution.
+' Parameter(s):
+'   optimize - If True, the Excel application environment is optimized
+'     execution of heavy procedure execution; otherwise, the environment is
+'     restored to Excel application defaults.
+' Date Created: 2026-08-18
+' Date Last Modified: 2026-08-18
+'------------------------------------------------------------------------------'
+Public Sub OptimizeAppEnvForSpeed(ByVal optimize As Boolean)
+  On Error GoTo Err_Proc
+  Const METHOD_NAME As String = "UnprotectAllSheetsAndCharts"
+  
+  With Application
+    .ScreenUpdating = Not optimize
+    .DisplayAlerts = Not optimize
+    .EnableEvents = Not optimize
+    .Calculation = IIf(optimize, xlCalculationManual, xlCalculationAutomatic)
+    Application.Calculate
+  End With
+
+Exit_Proc:
+  Exit Sub
+Err_Proc:
+  ShowMethodErrorMsgBox err, MODULE_NAME, METHOD_NAME
+  Resume Exit_Proc
+End Sub
 
 '------------------------------------------------------------------------------'
 ' Summary: A helper function that parses references string the Formulas
